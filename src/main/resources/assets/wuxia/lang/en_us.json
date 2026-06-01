@@ -8,6 +8,7 @@
     "attributesScreen.basic_attributes": "Basic",
     "attributesScreen.combat_attributes": "Combat",
     "attributesScreen.defense": "Defense",
+    "attributesScreen.dodge": "Dodge",
     "attributesScreen.health": "Health",
     "attributesScreen.innate_agility": "Innate Agility",
     "attributesScreen.innate_constitution": "Innate Constitution",
@@ -15,10 +16,11 @@
     "attributesScreen.innate_wisdom": "Innate Wisdom",
     "attributesScreen.mana": "Mana",
     "attributesScreen.max_mana": "Max Mana",
-    "key.category.wuxia.wuxia": "WSMod",
+    "attributesScreen.parry": "Parry",
+    "key.category.wuxia.wuxia": "WuxiaMod",
     "key.wuxia.wuxia": "Menu",
     "wuxiaScreen.attributes": "Attributes",
     "wuxiaScreen.jianghu": "Jianghu",
     "wuxiaScreen.skills": "Skills",
-    "wuxiaScreen.title": "WSMod Menu"
+    "wuxiaScreen.title": "Wuxia Mod Menu"
 }

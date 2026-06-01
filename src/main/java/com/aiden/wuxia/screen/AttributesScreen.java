@@ -12,7 +12,7 @@ public class AttributesScreen extends Screen {
     public Screen parent;
     private String health;
     private String mana, maxMana, innateStrength, acquiredStrength, innateConstitution, acquiredConstitution, innateAgility, acquiredAgility, innateWisdom, acquiredWisdom;
-    private String attack, defense, accuracy;
+    private String attack, defense, accuracy, dodge, parry;
     private String basicAttributes, combatAttributes;
 
     public AttributesScreen(Screen parent) {
@@ -39,20 +39,22 @@ public class AttributesScreen extends Screen {
             return;
         }
 
-        this.mana = Component.translatable("attributesScreen.mana").getString() + ": " + playerExt.ws$getMana();
-        this.maxMana = Component.translatable("attributesScreen.max_mana").getString() + ": " + playerExt.ws$getMaxMana();
-        this.innateStrength = Component.translatable("attributesScreen.innate_strength").getString() + ": " + playerExt.ws$getInnateStrength();
-        this.acquiredStrength = Component.translatable("attributesScreen.acquired_strength").getString() + ": " + playerExt.ws$getAcquiredStrength();
-        this.innateConstitution = Component.translatable("attributesScreen.innate_constitution").getString() + ": " + playerExt.ws$getInnateConstitution();
-        this.acquiredConstitution = Component.translatable("attributesScreen.acquired_constitution").getString() + ": " + playerExt.ws$getAcquiredConstitution();
-        this.innateAgility = Component.translatable("attributesScreen.innate_agility").getString() + ": " + playerExt.ws$getInnateAgility();
-        this.acquiredAgility = Component.translatable("attributesScreen.acquired_agility").getString() + ": " + playerExt.ws$getAcquiredAgility();
-        this.innateWisdom = Component.translatable("attributesScreen.innate_wisdom").getString() + ": " + playerExt.ws$getInnateWisdom();
-        this.acquiredWisdom = Component.translatable("attributesScreen.acquired_wisdom").getString() + ": " + playerExt.ws$getAcquiredWisdom();
+        this.mana = Component.translatable("attributesScreen.mana").getString() + ": " + playerExt.wuxia$getMana();
+        this.maxMana = Component.translatable("attributesScreen.max_mana").getString() + ": " + playerExt.wuxia$getMaxMana();
+        this.innateStrength = Component.translatable("attributesScreen.innate_strength").getString() + ": " + playerExt.wuxia$getInnateStrength();
+        this.acquiredStrength = Component.translatable("attributesScreen.acquired_strength").getString() + ": " + playerExt.wuxia$getAcquiredStrength();
+        this.innateConstitution = Component.translatable("attributesScreen.innate_constitution").getString() + ": " + playerExt.wuxia$getInnateConstitution();
+        this.acquiredConstitution = Component.translatable("attributesScreen.acquired_constitution").getString() + ": " + playerExt.wuxia$getAcquiredConstitution();
+        this.innateAgility = Component.translatable("attributesScreen.innate_agility").getString() + ": " + playerExt.wuxia$getInnateAgility();
+        this.acquiredAgility = Component.translatable("attributesScreen.acquired_agility").getString() + ": " + playerExt.wuxia$getAcquiredAgility();
+        this.innateWisdom = Component.translatable("attributesScreen.innate_wisdom").getString() + ": " + playerExt.wuxia$getInnateWisdom();
+        this.acquiredWisdom = Component.translatable("attributesScreen.acquired_wisdom").getString() + ": " + playerExt.wuxia$getAcquiredWisdom();
 
-        this.attack = Component.translatable("attributesScreen.attack").getString() + ": " + playerExt.ws$getAttack();
-        this.defense = Component.translatable("attributesScreen.defense").getString() + ": " + playerExt.ws$getDefense();
-        this.accuracy = Component.translatable("attributesScreen.accuracy").getString() + ": " + playerExt.ws$getAccuracy();
+        this.attack = Component.translatable("attributesScreen.attack").getString() + ": " + playerExt.wuxia$getAttack();
+        this.defense = Component.translatable("attributesScreen.defense").getString() + ": " + playerExt.wuxia$getDefense();
+        this.accuracy = Component.translatable("attributesScreen.accuracy").getString() + ": " + playerExt.wuxia$getAccuracy();
+        this.dodge = Component.translatable("attributesScreen.dodge").getString() + ": " + playerExt.wuxia$getDodge();
+        this.parry = Component.translatable("attributesScreen.parry").getString() + ": " + playerExt.wuxia$getParry();
     }
 
     @Override
@@ -60,12 +62,12 @@ public class AttributesScreen extends Screen {
         super.extractRenderState(graphics, mouseX, mouseY, a);
         graphics.fill(30, 35, 450, 215, 0xDD000099);
         graphics.text(this.font, this.title, 40, 40 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
-        graphics.text(this.font, this.basicAttributes, 40, 60 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
+        graphics.text(this.font, this.basicAttributes, 40, 60 - this.font.lineHeight - 10, 0xFFFFFF55, true);
         graphics.text(this.font, this.health, 40, 80 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
         graphics.text(this.font, this.mana, 40, 90 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
         graphics.text(this.font, this.maxMana, 40, 100 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
 
-        graphics.text(this.font, this.combatAttributes, 160, 60 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
+        graphics.text(this.font, this.combatAttributes, 160, 60 - this.font.lineHeight - 10, 0xFFFFFF55, true);
         graphics.text(this.font, this.innateStrength, 160, 80 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
         graphics.text(this.font, this.acquiredStrength, 160, 90 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
         graphics.text(this.font, this.innateConstitution, 160, 100 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
@@ -74,9 +76,11 @@ public class AttributesScreen extends Screen {
         graphics.text(this.font, this.acquiredAgility, 160, 130 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
         graphics.text(this.font, this.innateWisdom, 160, 140 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
         graphics.text(this.font, this.acquiredWisdom, 160, 150 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
-        graphics.text(this.font, this.attack, 160, 160 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
-        graphics.text(this.font, this.defense, 160, 170 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
-        graphics.text(this.font, this.accuracy, 160, 180 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
+        graphics.text(this.font, this.attack, 280, 80 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
+        graphics.text(this.font, this.defense, 280, 90 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
+        graphics.text(this.font, this.accuracy, 280, 100 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
+        graphics.text(this.font, this.dodge, 280, 110 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
+        graphics.text(this.font, this.parry, 280, 120 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
     }
 
     @Override

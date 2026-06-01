@@ -9,7 +9,7 @@ import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.minecraft.client.KeyMapping;
 import org.lwjgl.glfw.GLFW;
 
-public class WSClient implements ClientModInitializer {
+public class WuxiaClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         KeyMapping wsKeyMapping = KeyMappingHelper.registerKeyMapping(

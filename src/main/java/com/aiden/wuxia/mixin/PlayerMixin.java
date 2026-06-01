@@ -21,72 +21,96 @@ public class PlayerMixin implements PlayerMixinExtension {
     @Unique // 基本拳脚、基本内功、基本招架、基本轻功、基本剑法
     public int[] skills = {0, 0, 0, 0, 0};
     @Unique
-    public int[] wsAttributes = {
-            0, 0, // 内力、内力上限
-            25, 0, 25, 0, 15, 0, 15, 0, // 先天臂力、后天臂力、先天根骨、后天根骨、先天身法、后天身法、先天悟性、后天悟性
-            0, 0, 0, 0, 0, // 攻击、防御、命中、躲闪、招架
-            0, 0, 0, 0, 0 // Δ攻击、Δ防御、Δ命中、Δ躲闪、Δ招架
+    public int[] wuxiaAttributes = {
+            0, 0, // 内力、内力上限 [0~1]
+            25, 0, 25, 0, 15, 0, 15, 0, // 先天臂力、后天臂力、先天根骨、后天根骨、先天身法、后天身法、先天悟性、后天悟性 [2~9]
+            0, 0, 0, 0, 0, // 攻击、防御、命中、躲闪、招架 [10~14]
+            0, 0, 0, 0, 0, // Δ攻击、Δ防御、Δ命中、Δ躲闪、Δ招架 [15~19]
+            0, 0, 0, 0, 0 // 攻击%、防御%、命中%、躲闪%、招架% [20~24]
     };
+    @Unique
+    public boolean awakened = false;
 
     @Inject(method = "addAdditionalSaveData", at = @At(value = "TAIL"))
     public void addAdditionalSaveData(ValueOutput output, CallbackInfo ci) {
-        ValueOutput skills = output.child("Skills");
+        output.putBoolean("Awakened", this.awakened);
+        ValueOutput skills = output.child("WuxiaSkills");
         skills.putInt("jibenquanjiao", this.skills[0]); // 基本拳脚
         skills.putInt("jibenneigong", this.skills[1]); // 基本内功
         skills.putInt("jibenzhaojia", this.skills[2]); // 基本招架
         skills.putInt("jibenqinggong", this.skills[3]); // 基本轻功
         skills.putInt("jibenjianfa", this.skills[4]); // 基本剑法
 
-        ValueOutput attributes = output.child("WSAttributes");
-        attributes.putInt("mana", this.wsAttributes[0]); // 内力
-        attributes.putInt("max_mana", this.wsAttributes[1]); // 内力上限
-        attributes.putInt("innate_strength", this.wsAttributes[2]); // 臂力
-        attributes.putInt("acquired_strength", this.wsAttributes[3]);
-        attributes.putInt("innate_constitution", this.wsAttributes[4]); // 根骨
-        attributes.putInt("acquired_constitution", this.wsAttributes[5]);
-        attributes.putInt("innate_agility", this.wsAttributes[6]); // 身法
-        attributes.putInt("acquired_agility", this.wsAttributes[7]);
-        attributes.putInt("innate_wisdom", this.wsAttributes[8]); // 悟性
-        attributes.putInt("acquired_wisdom", this.wsAttributes[9]);
-        attributes.putInt("attack", this.wsAttributes[10]);
-        attributes.putInt("defense", this.wsAttributes[11]);
-        attributes.putInt("accuracy", this.wsAttributes[12]);
+        ValueOutput attributes = output.child("WuxiaAttributes");
+        attributes.putInt("mana", this.wuxiaAttributes[0]); // 内力
+        attributes.putInt("max_mana", this.wuxiaAttributes[1]); // 内力上限
+        attributes.putInt("innate_strength", this.wuxiaAttributes[2]); // 臂力
+        attributes.putInt("acquired_strength", this.wuxiaAttributes[3]);
+        attributes.putInt("innate_constitution", this.wuxiaAttributes[4]); // 根骨
+        attributes.putInt("acquired_constitution", this.wuxiaAttributes[5]);
+        attributes.putInt("innate_agility", this.wuxiaAttributes[6]); // 身法
+        attributes.putInt("acquired_agility", this.wuxiaAttributes[7]);
+        attributes.putInt("innate_wisdom", this.wuxiaAttributes[8]); // 悟性
+        attributes.putInt("acquired_wisdom", this.wuxiaAttributes[9]);
+        attributes.putInt("attack", this.wuxiaAttributes[10]);
+        attributes.putInt("defense", this.wuxiaAttributes[11]);
+        attributes.putInt("accuracy", this.wuxiaAttributes[12]);
+        attributes.putInt("dodge", this.wuxiaAttributes[13]);
+        attributes.putInt("parry", this.wuxiaAttributes[14]);
+        attributes.putInt("delta_attack", this.wuxiaAttributes[15]);
+        attributes.putInt("delta_defense", this.wuxiaAttributes[16]);
+        attributes.putInt("delta_accuracy", this.wuxiaAttributes[17]);
+        attributes.putInt("delta_dodge", this.wuxiaAttributes[18]);
+        attributes.putInt("delta_parry", this.wuxiaAttributes[19]);
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At(value = "TAIL"))
     public void readAdditionalSaveData(ValueInput input, CallbackInfo ci) {
-        ValueInput skills = input.child("Skills").orElseThrow();
+        this.awakened = input.getBooleanOr("Awakened", false);
+        ValueInput skills = input.child("WuxiaSkills").orElseThrow();
         this.skills[0] = skills.getIntOr("jibenquanjiao", 0);
         this.skills[1] = skills.getIntOr("jibenneigong", 0);
         this.skills[2] = skills.getIntOr("jibenzhaojia", 0);
         this.skills[3] = skills.getIntOr("jibenqinggong", 0);
         this.skills[4] = skills.getIntOr("jibenjianfa", 0);
 
-        ValueInput attributes = input.child("WSAttributes").orElseThrow();
-        this.wsAttributes[0] = attributes.getIntOr("mana", 0); // 内力
-        this.wsAttributes[1] = attributes.getIntOr("max_mana", 0); // 内力上限
-        this.wsAttributes[2] = attributes.getIntOr("innate_strength", 0); // 臂力
-        this.wsAttributes[3] = attributes.getIntOr("acquired_strength", 0);
-        this.wsAttributes[4] = attributes.getIntOr("innate_constitution", 0); // 根骨
-        this.wsAttributes[5] = attributes.getIntOr("acquired_constitution", 0);
-        this.wsAttributes[6] = attributes.getIntOr("innate_agility", 0); // 身法
-        this.wsAttributes[7] = attributes.getIntOr("acquired_agility", 0);
-        this.wsAttributes[8] = attributes.getIntOr("innate_wisdom", 0); // 悟性
-        this.wsAttributes[9] = attributes.getIntOr("acquired_wisdom", 0);
-        this.wsAttributes[10] = attributes.getIntOr("attack", 0);
-        this.wsAttributes[11] = attributes.getIntOr("defense", 0);
-        this.wsAttributes[12] = attributes.getIntOr("accuracy", 0);
+        ValueInput attributes = input.child("WuxiaAttributes").orElseThrow();
+        this.wuxiaAttributes[0] = attributes.getIntOr("mana", 0); // 内力
+        this.wuxiaAttributes[1] = attributes.getIntOr("max_mana", 0); // 内力上限
+        this.wuxiaAttributes[2] = attributes.getIntOr("innate_strength", 0); // 臂力
+        this.wuxiaAttributes[3] = attributes.getIntOr("acquired_strength", 0);
+        this.wuxiaAttributes[4] = attributes.getIntOr("innate_constitution", 0); // 根骨
+        this.wuxiaAttributes[5] = attributes.getIntOr("acquired_constitution", 0);
+        this.wuxiaAttributes[6] = attributes.getIntOr("innate_agility", 0); // 身法
+        this.wuxiaAttributes[7] = attributes.getIntOr("acquired_agility", 0);
+        this.wuxiaAttributes[8] = attributes.getIntOr("innate_wisdom", 0); // 悟性
+        this.wuxiaAttributes[9] = attributes.getIntOr("acquired_wisdom", 0);
+        this.wuxiaAttributes[10] = attributes.getIntOr("attack", 0);
+        this.wuxiaAttributes[11] = attributes.getIntOr("defense", 0);
+        this.wuxiaAttributes[12] = attributes.getIntOr("accuracy", 0);
+        this.wuxiaAttributes[13] = attributes.getIntOr("dodge", 0);
+        this.wuxiaAttributes[14] = attributes.getIntOr("parry", 0);
+        this.wuxiaAttributes[15] = attributes.getIntOr("delta_attack", 0);
+        this.wuxiaAttributes[16] = attributes.getIntOr("delta_defense", 0);
+        this.wuxiaAttributes[17] = attributes.getIntOr("delta_accuracy", 0);
+        this.wuxiaAttributes[18] = attributes.getIntOr("delta_dodge", 0);
+        this.wuxiaAttributes[19] = attributes.getIntOr("delta_parry", 0);
     }
 
     @Inject(method = "tick", at = @At(value = "TAIL"))
     public void tick(CallbackInfo ci) {
-        this.wsAttributes[10] = Math.round(this.wsAttributes[2] * this.wsAttributes[3] * 0.1F + this.wsAttributes[2] + getMeleeAttackDamage());
-        this.wsAttributes[11] = Math.round((this.wsAttributes[2] + this.wsAttributes[4]) * 0.1F + this.wsAttributes[4] * this.wsAttributes[5] * 0.1F);
+        this.wuxiaAttributes[15] = getMeleeAttackDamage();
+        // 更新 攻击防御命中躲闪招架
+        this.wuxiaAttributes[10] = Math.round(this.wuxiaAttributes[2] + this.wuxiaAttributes[2] * this.wuxiaAttributes[3] * 0.1F + this.wuxiaAttributes[15]);
+        this.wuxiaAttributes[11] = Math.round((this.wuxiaAttributes[2] + this.wuxiaAttributes[4]) * 0.1F + this.wuxiaAttributes[4] * this.wuxiaAttributes[5] * 0.1F + this.wuxiaAttributes[16]);
+        this.wuxiaAttributes[12] = Math.round(this.wuxiaAttributes[6] * 0.5F + this.wuxiaAttributes[17]);
+        this.wuxiaAttributes[13] = Math.round(this.wuxiaAttributes[6] / 2F + this.wuxiaAttributes[6] * this.wuxiaAttributes[7] * 0.1F + this.wuxiaAttributes[18]);
+        this.wuxiaAttributes[14] = Math.round(this.wuxiaAttributes[2] * 0.5F + this.wuxiaAttributes[2] * this.wuxiaAttributes[3] * 0.1F + this.wuxiaAttributes[19]);
     }
 
     @Redirect(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;hurtOrSimulate(Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
     public boolean hurtOrSimulate(Entity instance, DamageSource source, float damage) {
-        return instance.hurtOrSimulate(source, this.ws$getAttack());
+        return instance.hurtOrSimulate(source, this.awakened ? this.wuxia$getAttack() : damage);
     }
 
     @Unique
@@ -102,163 +126,267 @@ public class PlayerMixin implements PlayerMixinExtension {
         return Math.round(baseDamage + magicBoost);
     }
 
+    @Unique
     @Override
-    public int[] ws$getAllAttributes() {
-        return this.wsAttributes;
-    }
-
-    @Override
-    public void ws$setAllAttributes(int[] attributes) {
-        this.wsAttributes = attributes;
+    public boolean wuxia$isAwakened() {
+        return this.awakened;
     }
 
     @Unique
     @Override
-    public int ws$getMana() {
-        return this.wsAttributes[0];
+    public void wuxia$setAwakened(boolean awakened) {
+        this.awakened = awakened;
     }
 
     @Unique
     @Override
-    public void ws$setMana(int mana) {
-        this.wsAttributes[0] = mana;
+    public int[] wuxia$getAllAttributes() {
+        return this.wuxiaAttributes;
     }
 
     @Unique
     @Override
-    public int ws$getMaxMana() {
-        return this.wsAttributes[1];
+    public void wuxia$setAllAttributes(int[] attributes) {
+        this.wuxiaAttributes = attributes;
     }
 
     @Unique
     @Override
-    public void ws$setMaxMana(int mana) {
-        this.wsAttributes[1] = mana;
+    public int wuxia$getMana() {
+        return this.wuxiaAttributes[0];
     }
 
     @Unique
     @Override
-    public int ws$getInnateStrength() {
-        return this.wsAttributes[2];
+    public void wuxia$setMana(int mana) {
+        this.wuxiaAttributes[0] = mana;
     }
 
     @Unique
     @Override
-    public void ws$setInnateStrength(int innateStrength) {
-        this.wsAttributes[2] = innateStrength;
+    public int wuxia$getMaxMana() {
+        return this.wuxiaAttributes[1];
     }
 
     @Unique
     @Override
-    public int ws$getAcquiredStrength() {
-        return this.wsAttributes[3];
+    public void wuxia$setMaxMana(int mana) {
+        this.wuxiaAttributes[1] = mana;
     }
 
     @Unique
     @Override
-    public void ws$setAcquiredStrength(int acquiredStrength) {
-        this.wsAttributes[3] = acquiredStrength;
+    public int wuxia$getInnateStrength() {
+        return this.wuxiaAttributes[2];
     }
 
     @Unique
     @Override
-    public int ws$getInnateConstitution() {
-        return this.wsAttributes[4];
+    public void wuxia$setInnateStrength(int innateStrength) {
+        this.wuxiaAttributes[2] = innateStrength;
     }
 
     @Unique
     @Override
-    public void ws$setInnateConstitution(int innateConstitution) {
-        this.wsAttributes[4] = innateConstitution;
+    public int wuxia$getAcquiredStrength() {
+        return this.wuxiaAttributes[3];
     }
 
     @Unique
     @Override
-    public int ws$getAcquiredConstitution() {
-        return this.wsAttributes[5];
+    public void wuxia$setAcquiredStrength(int acquiredStrength) {
+        this.wuxiaAttributes[3] = acquiredStrength;
     }
 
     @Unique
     @Override
-    public void ws$setAcquiredConstitution(int acquiredConstitution) {
-        this.wsAttributes[5] = acquiredConstitution;
+    public int wuxia$getInnateConstitution() {
+        return this.wuxiaAttributes[4];
     }
 
     @Unique
     @Override
-    public int ws$getInnateAgility() {
-        return this.wsAttributes[6];
+    public void wuxia$setInnateConstitution(int innateConstitution) {
+        this.wuxiaAttributes[4] = innateConstitution;
     }
 
     @Unique
     @Override
-    public void ws$setInnateAgility(int innateAgility) {
-        this.wsAttributes[6] = innateAgility;
+    public int wuxia$getAcquiredConstitution() {
+        return this.wuxiaAttributes[5];
     }
 
     @Unique
     @Override
-    public int ws$getAcquiredAgility() {
-        return this.wsAttributes[7];
+    public void wuxia$setAcquiredConstitution(int acquiredConstitution) {
+        this.wuxiaAttributes[5] = acquiredConstitution;
     }
 
     @Unique
     @Override
-    public void ws$setAcquiredAgility(int acquiredAgility) {
-        this.wsAttributes[7] = acquiredAgility;
+    public int wuxia$getInnateAgility() {
+        return this.wuxiaAttributes[6];
     }
 
     @Unique
     @Override
-    public int ws$getInnateWisdom() {
-        return this.wsAttributes[8];
+    public void wuxia$setInnateAgility(int innateAgility) {
+        this.wuxiaAttributes[6] = innateAgility;
     }
 
     @Unique
     @Override
-    public void ws$setInnateWisdom(int innateWisdom) {
-        this.wsAttributes[8] = innateWisdom;
+    public int wuxia$getAcquiredAgility() {
+        return this.wuxiaAttributes[7];
     }
 
     @Unique
     @Override
-    public int ws$getAcquiredWisdom() {
-        return this.wsAttributes[9];
+    public void wuxia$setAcquiredAgility(int acquiredAgility) {
+        this.wuxiaAttributes[7] = acquiredAgility;
     }
 
     @Unique
     @Override
-    public void ws$setAcquiredWisdom(int acquiredWisdom) {
-        this.wsAttributes[9] = acquiredWisdom;
+    public int wuxia$getInnateWisdom() {
+        return this.wuxiaAttributes[8];
     }
 
+    @Unique
     @Override
-    public int ws$getAttack() {
-        return this.wsAttributes[10];
+    public void wuxia$setInnateWisdom(int innateWisdom) {
+        this.wuxiaAttributes[8] = innateWisdom;
     }
 
+    @Unique
     @Override
-    public void ws$setAttack(int attack) {
-        this.wsAttributes[10] = attack;
+    public int wuxia$getAcquiredWisdom() {
+        return this.wuxiaAttributes[9];
     }
 
+    @Unique
     @Override
-    public int ws$getDefense() {
-        return this.wsAttributes[11];
+    public void wuxia$setAcquiredWisdom(int acquiredWisdom) {
+        this.wuxiaAttributes[9] = acquiredWisdom;
     }
 
+    @Unique
     @Override
-    public void ws$setDefense(int defense) {
-        this.wsAttributes[11] = defense;
+    public int wuxia$getAttack() {
+        return this.wuxiaAttributes[10];
     }
 
+    @Unique
     @Override
-    public int ws$getAccuracy() {
-        return this.wsAttributes[12];
+    public void wuxia$setAttack(int attack) {
+        this.wuxiaAttributes[10] = attack;
     }
 
+    @Unique
     @Override
-    public void ws$setAccuracy(int accuracy) {
-        this.wsAttributes[12] = accuracy;
+    public int wuxia$getDefense() {
+        return this.wuxiaAttributes[11];
+    }
+
+    @Unique
+    @Override
+    public void wuxia$setDefense(int defense) {
+        this.wuxiaAttributes[11] = defense;
+    }
+
+    @Unique
+    @Override
+    public int wuxia$getAccuracy() {
+        return this.wuxiaAttributes[12];
+    }
+
+    @Unique
+    @Override
+    public void wuxia$setAccuracy(int accuracy) {
+        this.wuxiaAttributes[12] = accuracy;
+    }
+
+    @Unique
+    @Override
+    public int wuxia$getDodge() {
+        return wuxiaAttributes[13];
+    }
+
+    @Unique
+    @Override
+    public void wuxia$setDodge(int dodge) {
+        wuxiaAttributes[13] = dodge;
+    }
+
+    @Unique
+    @Override
+    public int wuxia$getParry() {
+        return wuxiaAttributes[14];
+    }
+
+    @Unique
+    @Override
+    public void wuxia$setParry(int parry) {
+        wuxiaAttributes[14] = parry;
+    }
+
+    @Unique
+    @Override
+    public int wuxia$getDeltaAttack() {
+        return wuxiaAttributes[15];
+    }
+
+    @Unique
+    @Override
+    public void wuxia$setDeltaAttack(int dAttack) {
+        wuxiaAttributes[15] = dAttack;
+    }
+
+    @Unique
+    @Override
+    public int wuxia$getDeltaDefense() {
+        return wuxiaAttributes[16];
+    }
+
+    @Unique
+    @Override
+    public void wuxia$setDeltaDefense(int dDefense) {
+        wuxiaAttributes[16] = dDefense;
+    }
+
+    @Unique
+    @Override
+    public int wuxia$getDeltaAccuracy() {
+        return wuxiaAttributes[17];
+    }
+
+    @Unique
+    @Override
+    public void wuxia$setDeltaAccuracy(int dAccuracy) {
+        wuxiaAttributes[17] = dAccuracy;
+    }
+
+    @Unique
+    @Override
+    public int wuxia$getDeltaDodge() {
+        return wuxiaAttributes[18];
+    }
+
+    @Unique
+    @Override
+    public void wuxia$setDeltaDodge(int dDodge) {
+        wuxiaAttributes[18] = dDodge;
+    }
+
+    @Unique
+    @Override
+    public int wuxia$getDeltaParry() {
+        return wuxiaAttributes[19];
+    }
+
+    @Unique
+    @Override
+    public void wuxia$setDeltaParry(int dParry) {
+        wuxiaAttributes[19] = dParry;
     }
 }

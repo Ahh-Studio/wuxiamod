@@ -9,17 +9,17 @@
 	],
 	"contact": {},
 	"license": "MIT",
-	"icon": "assets/ws/icon.png",
+	"icon": "assets/wuxia/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"com.aiden.wuxia.WSMod"
+            "com.aiden.wuxia.WuxiaMod"
 		],
 		"client": [
-			"com.aiden.wuxia.client.WSClient"
+			"com.aiden.wuxia.client.WuxiaClient"
 		],
 		"fabric-datagen": [
-			"com.aiden.wuxia.WSModDataGenerator"
+			"com.aiden.wuxia.WuxiaModDataGenerator"
 		]
 	},
 	"mixins": [
