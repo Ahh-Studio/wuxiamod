@@ -62,6 +62,11 @@ public class PlayerMixin implements PlayerMixinExtension {
         attributes.putInt("delta_accuracy", this.wuxiaAttributes[17]);
         attributes.putInt("delta_dodge", this.wuxiaAttributes[18]);
         attributes.putInt("delta_parry", this.wuxiaAttributes[19]);
+        attributes.putInt("attack_percent", this.wuxiaAttributes[20]);
+        attributes.putInt("defense_percent", this.wuxiaAttributes[21]);
+        attributes.putInt("accuracy_percent", this.wuxiaAttributes[22]);
+        attributes.putInt("dodge_percent", this.wuxiaAttributes[23]);
+        attributes.putInt("parry_percent", this.wuxiaAttributes[24]);
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At(value = "TAIL"))
@@ -95,17 +100,42 @@ public class PlayerMixin implements PlayerMixinExtension {
         this.wuxiaAttributes[17] = attributes.getIntOr("delta_accuracy", 0);
         this.wuxiaAttributes[18] = attributes.getIntOr("delta_dodge", 0);
         this.wuxiaAttributes[19] = attributes.getIntOr("delta_parry", 0);
+        this.wuxiaAttributes[20] = attributes.getIntOr("attack_percent", 0);
+        this.wuxiaAttributes[21] = attributes.getIntOr("defense_percent", 0);
+        this.wuxiaAttributes[22] = attributes.getIntOr("accuracy_percent", 0);
+        this.wuxiaAttributes[23] = attributes.getIntOr("dodge_percent", 0);
+        this.wuxiaAttributes[24] = attributes.getIntOr("parry_percent", 0);
     }
 
     @Inject(method = "tick", at = @At(value = "TAIL"))
     public void tick(CallbackInfo ci) {
-        this.wuxiaAttributes[15] = getMeleeAttackDamage();
-        // 更新 攻击防御命中躲闪招架
-        this.wuxiaAttributes[10] = Math.round(this.wuxiaAttributes[2] + this.wuxiaAttributes[2] * this.wuxiaAttributes[3] * 0.1F + this.wuxiaAttributes[15]);
-        this.wuxiaAttributes[11] = Math.round((this.wuxiaAttributes[2] + this.wuxiaAttributes[4]) * 0.1F + this.wuxiaAttributes[4] * this.wuxiaAttributes[5] * 0.1F + this.wuxiaAttributes[16]);
-        this.wuxiaAttributes[12] = Math.round(this.wuxiaAttributes[6] * 0.5F + this.wuxiaAttributes[17]);
-        this.wuxiaAttributes[13] = Math.round(this.wuxiaAttributes[6] / 2F + this.wuxiaAttributes[6] * this.wuxiaAttributes[7] * 0.1F + this.wuxiaAttributes[18]);
-        this.wuxiaAttributes[14] = Math.round(this.wuxiaAttributes[2] * 0.5F + this.wuxiaAttributes[2] * this.wuxiaAttributes[3] * 0.1F + this.wuxiaAttributes[19]);
+        if (this.awakened) {
+            wuxia$setDeltaAttack(getMeleeAttackDamage());
+            wuxia$setDeltaDefense(0);
+            wuxia$setDeltaAccuracy(0);
+            wuxia$setDeltaDodge(0);
+            wuxia$setDeltaParry(0);
+            // 更新 攻击防御命中躲闪招架
+            this.wuxia$setAttack((int) Math.floor((wuxia$getInnateStrength() +
+                    wuxia$getInnateStrength() * wuxia$getAcquiredStrength() * 0.1 +
+                    wuxia$getDeltaAttack()
+            ) * (100 + wuxia$getAttackPercent()) / 100));
+            this.wuxia$setDefense((int) Math.floor(((wuxia$getInnateStrength() + wuxia$getInnateConstitution()) * 0.1 +
+                    wuxia$getInnateConstitution() * wuxia$getAcquiredConstitution() * 0.1 +
+                    wuxia$getDeltaDefense()
+            ) * (100 + wuxia$getDefensePercent()) / 100));
+            this.wuxia$setAccuracy((int) Math.floor((wuxia$getInnateAgility() * 0.5 +
+                    wuxia$getDeltaAccuracy()
+            ) * (100 + wuxia$getAccuracyPercent()) / 100));
+            this.wuxia$setDodge((int) Math.floor((wuxia$getInnateAgility() * 0.5 +
+                    wuxia$getInnateAgility() * wuxia$getAcquiredAgility() * 0.1 +
+                    wuxia$getDeltaDodge()
+            ) * (100 + wuxia$getDodgePercent()) / 100));
+            this.wuxia$setParry((int) Math.floor((wuxia$getInnateStrength() * 0.5 +
+                    wuxia$getInnateStrength() * wuxia$getAcquiredStrength() * 0.1 +
+                    wuxia$getDeltaParry()
+            ) * (100 + wuxia$getParryPercent()) / 100));
+        }
     }
 
     @Redirect(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;hurtOrSimulate(Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
@@ -388,5 +418,65 @@ public class PlayerMixin implements PlayerMixinExtension {
     @Override
     public void wuxia$setDeltaParry(int dParry) {
         wuxiaAttributes[19] = dParry;
+    }
+
+    @Unique
+    @Override
+    public int wuxia$getAttackPercent() {
+        return wuxiaAttributes[20];
+    }
+
+    @Unique
+    @Override
+    public void wuxia$setAttackPercent(int attackPercent) {
+        wuxiaAttributes[20] = attackPercent;
+    }
+
+    @Unique
+    @Override
+    public int wuxia$getDefensePercent() {
+        return wuxiaAttributes[21];
+    }
+
+    @Unique
+    @Override
+    public void wuxia$setDefensePercent(int defensePercent) {
+        wuxiaAttributes[21] = defensePercent;
+    }
+
+    @Unique
+    @Override
+    public int wuxia$getAccuracyPercent() {
+        return wuxiaAttributes[22];
+    }
+
+    @Unique
+    @Override
+    public void wuxia$setAccuracyPercent(int accuracyPercent) {
+        wuxiaAttributes[22] = accuracyPercent;
+    }
+
+    @Unique
+    @Override
+    public int wuxia$getDodgePercent() {
+        return wuxiaAttributes[23];
+    }
+
+    @Unique
+    @Override
+    public void wuxia$setDodgePercent(int dodgePercent) {
+        wuxiaAttributes[23] = dodgePercent;
+    }
+
+    @Unique
+    @Override
+    public int wuxia$getParryPercent() {
+        return wuxiaAttributes[24];
+    }
+
+    @Unique
+    @Override
+    public void wuxia$setParryPercent(int parryPercent) {
+        wuxiaAttributes[24] = parryPercent;
     }
 }

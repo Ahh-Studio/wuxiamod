@@ -45,4 +45,14 @@ public interface PlayerMixinExtension {
     void wuxia$setDeltaDodge(int dDodge);
     int wuxia$getDeltaParry();
     void wuxia$setDeltaParry(int dParry);
+    int wuxia$getAttackPercent();
+    void wuxia$setAttackPercent(int attackPercent);
+    int wuxia$getDefensePercent();
+    void wuxia$setDefensePercent(int defensePercent);
+    int wuxia$getAccuracyPercent();
+    void wuxia$setAccuracyPercent(int accuracyPercent);
+    int wuxia$getDodgePercent();
+    void wuxia$setDodgePercent(int dodgePercent);
+    int wuxia$getParryPercent();
+    void wuxia$setParryPercent(int parryPercent);
 }
