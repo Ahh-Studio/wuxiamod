@@ -1,8 +1,20 @@
 package com.aiden.wuxia.mixin_extension;
 
+import com.aiden.wuxia.skill.Skill;
+
+import java.util.Map;
+
 public interface PlayerMixinExtension {
     boolean wuxia$isAwakened();
     void wuxia$setAwakened(boolean awakened);
+    int wuxia$getHealth();
+    void wuxia$setHealth(int health);
+    int wuxia$getMaxHealth();
+    void wuxia$setMaxHealth(int maxHealth);
+    int wuxia$getDeltaHealth();
+    void wuxia$setDeltaHealth(int deltaHealth);
+    int wuxia$getHealthPercent();
+    void wuxia$setHealthPercent(int healthPercent);
     int[] wuxia$getAllAttributes();
     void wuxia$setAllAttributes(int[] attributes);
     int wuxia$getMana();
@@ -55,4 +67,6 @@ public interface PlayerMixinExtension {
     void wuxia$setDodgePercent(int dodgePercent);
     int wuxia$getParryPercent();
     void wuxia$setParryPercent(int parryPercent);
+    Map<Skill, Integer> wuxia$getAllSkills();
+    void wuxia$setSkill(Skill skill, int value);
 }

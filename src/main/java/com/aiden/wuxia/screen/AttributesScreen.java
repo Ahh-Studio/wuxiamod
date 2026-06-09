@@ -1,7 +1,7 @@
 package com.aiden.wuxia.screen;
 
 import com.aiden.wuxia.mixin_extension.PlayerMixinExtension;
-import com.aiden.wuxia.payloads.WSAttributesC2SPayload;
+import com.aiden.wuxia.payloads.WuxiaAttributesC2SPayload;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
@@ -26,10 +26,9 @@ public class AttributesScreen extends Screen {
         PlayerMixinExtension playerExt = (PlayerMixinExtension) this.minecraft.player;
 
         // send packet
-        WSAttributesC2SPayload payload = new WSAttributesC2SPayload();
+        WuxiaAttributesC2SPayload payload = new WuxiaAttributesC2SPayload();
         ClientPlayNetworking.send(payload);
 
-        this.health = Component.translatable("attributesScreen.health").getString() + ": " + Math.round(this.minecraft.player.getHealth());
         this.combatAttributes = Component.translatable("attributesScreen.combat_attributes").getString();
         this.basicAttributes = Component.translatable("attributesScreen.basic_attributes").getString();
 
@@ -39,6 +38,7 @@ public class AttributesScreen extends Screen {
             return;
         }
 
+        this.health = Component.translatable("attributesScreen.health").getString() + ": " + playerExt.wuxia$getHealth() + " / " + playerExt.wuxia$getMaxHealth();
         this.mana = Component.translatable("attributesScreen.mana").getString() + ": " + playerExt.wuxia$getMana();
         this.maxMana = Component.translatable("attributesScreen.max_mana").getString() + ": " + playerExt.wuxia$getMaxMana();
         this.innateStrength = Component.translatable("attributesScreen.innate_strength").getString() + ": " + playerExt.wuxia$getInnateStrength();
