@@ -1,4 +1,4 @@
-package com.aiden.wuxia.skill;
+package com.aiden.wuxia.enums;
 
 public enum Skill {
     JIBENQUANJIAO,

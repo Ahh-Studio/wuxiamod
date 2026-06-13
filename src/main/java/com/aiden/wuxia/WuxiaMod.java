@@ -1,7 +1,9 @@
 package com.aiden.wuxia;
 
 import com.aiden.wuxia.command.ModCommands;
+import com.aiden.wuxia.enums.Action;
 import com.aiden.wuxia.mixin_extension.PlayerMixinExtension;
+import com.aiden.wuxia.payloads.SetActionC2SPayload;
 import com.aiden.wuxia.payloads.WuxiaAttributesC2SPayload;
 import com.aiden.wuxia.payloads.WuxiaAttributesS2CPayload;
 import com.aiden.wuxia.screen.AttributesScreen;
@@ -31,6 +33,7 @@ public class WuxiaMod implements ModInitializer {
 			playerMixinExtension.wuxia$setAllAttributes(payload.wuxiaAttributes());
 			playerMixinExtension.wuxia$setHealth(payload.health());
 			playerMixinExtension.wuxia$setMaxHealth(payload.maxHealth());
+			playerMixinExtension.wuxia$setAction(Action.safeValueOf(payload.action()));
 			Screen screen = context.client().screen;
 			if (screen instanceof AttributesScreen oldAttributesScreen) {
 				context.client().setScreen(new AttributesScreen(oldAttributesScreen.parent));
@@ -39,7 +42,12 @@ public class WuxiaMod implements ModInitializer {
 		PayloadTypeRegistry.serverboundPlay().register(WuxiaAttributesC2SPayload.TYPE, WuxiaAttributesC2SPayload.CODEC);
 		ServerPlayNetworking.registerGlobalReceiver(WuxiaAttributesC2SPayload.TYPE, (_, context) -> {
 			PlayerMixinExtension playerMixinExtension = (PlayerMixinExtension) context.player();
-			ServerPlayNetworking.send(context.player(), new WuxiaAttributesS2CPayload(playerMixinExtension.wuxia$getAllAttributes(), playerMixinExtension.wuxia$getHealth(), playerMixinExtension.wuxia$getMaxHealth()));
+			ServerPlayNetworking.send(context.player(), new WuxiaAttributesS2CPayload(playerMixinExtension.wuxia$getAllAttributes(), playerMixinExtension.wuxia$getHealth(), playerMixinExtension.wuxia$getMaxHealth(), playerMixinExtension.wuxia$getAction().name()));
+		});
+		PayloadTypeRegistry.serverboundPlay().register(SetActionC2SPayload.TYPE, SetActionC2SPayload.CODEC);
+		ServerPlayNetworking.registerGlobalReceiver(SetActionC2SPayload.TYPE, (payload, context) -> {
+			PlayerMixinExtension playerMixinExtension = (PlayerMixinExtension) context.player();
+			playerMixinExtension.wuxia$setAction(Action.safeValueOf(payload.action()));
 		});
 	}
 }

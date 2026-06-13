@@ -1,6 +1,6 @@
 {
 	"schemaVersion": 1,
-	"id": "ws",
+	"id": "wuxia",
 	"version": "${version}",
 	"name": "WuxiaMod",
 	"description": "WuxiaMod",
@@ -23,7 +23,7 @@
 		]
 	},
 	"mixins": [
-		"ws.mixins.json"
+		"wuxia.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.19.2",

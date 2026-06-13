@@ -1,7 +1,7 @@
 package com.aiden.wuxia.command;
 
 import com.aiden.wuxia.mixin_extension.PlayerMixinExtension;
-import com.aiden.wuxia.skill.Skill;
+import com.aiden.wuxia.enums.Skill;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;

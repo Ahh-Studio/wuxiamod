@@ -20,7 +20,10 @@
     "key.category.wuxia.wuxia": "武侠模组",
     "key.wuxia.wuxia": "菜单",
     "wuxiaScreen.attributes": "属性",
+    "wuxiaScreen.clear_action": "停止动作",
+    "wuxiaScreen.heal": "疗伤",
     "wuxiaScreen.jianghu": "江湖",
+    "wuxiaScreen.meditate": "打坐",
     "wuxiaScreen.skills": "技能",
     "wuxiaScreen.title": "武侠模组菜单"
 }

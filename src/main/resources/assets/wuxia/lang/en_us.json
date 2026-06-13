@@ -20,7 +20,10 @@
     "key.category.wuxia.wuxia": "WuxiaMod",
     "key.wuxia.wuxia": "Menu",
     "wuxiaScreen.attributes": "Attributes",
+    "wuxiaScreen.clear_action": "Clear Action",
+    "wuxiaScreen.heal": "Heal",
     "wuxiaScreen.jianghu": "Jianghu",
+    "wuxiaScreen.meditate": "Meditate",
     "wuxiaScreen.skills": "Skills",
     "wuxiaScreen.title": "Wuxia Mod Menu"
 }

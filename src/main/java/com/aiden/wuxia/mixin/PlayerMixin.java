@@ -1,10 +1,11 @@
 package com.aiden.wuxia.mixin;
 
+import com.aiden.wuxia.enums.Action;
 import com.aiden.wuxia.mixin.accessor.LivingEntityAccessor;
 import com.aiden.wuxia.mixin.invoker.PlayerEntityInvoker;
 import com.aiden.wuxia.mixin_extension.PlayerMixinExtension;
 import com.aiden.wuxia.payloads.WuxiaAttributesS2CPayload;
-import com.aiden.wuxia.skill.Skill;
+import com.aiden.wuxia.enums.Skill;
 import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.server.level.ServerPlayer;
@@ -15,6 +16,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,11 +39,12 @@ public class PlayerMixin implements PlayerMixinExtension {
             0, 0, 0, 0, 0 // 攻击%、防御%、命中%、躲闪%、招架% [20~24]
     };
     @Unique public boolean awakened = false;
-    @Unique public int wuxiaHealth = 0;
+    @Unique public int wuxiaHealth = 1;
     @Unique public int wuxiaMaxHealth = 0;
     @Unique public int wuxiaDeltaHealth = 0;
     @Unique public int wuxiaHealthPercent = 0;
     @Unique private int wuxiaAttributesPacketSendCounter = 19;
+    @Unique public Action wuxiaAction = Action.NONE;
 
     @Inject(method = "<init>", at = @At(value = "TAIL"))
     public void injectedInit(Level level, GameProfile gameProfile, CallbackInfo ci) {
@@ -59,6 +62,8 @@ public class PlayerMixin implements PlayerMixinExtension {
         output.putInt("wuxiaMaxHealth", this.wuxiaMaxHealth);
         output.putInt("wuxiaDeltaHealth", this.wuxiaDeltaHealth);
         output.putInt("wuxiaHealthPercent", this.wuxiaHealthPercent);
+        output.putString("wuxiaAction", this.wuxiaAction.name().toLowerCase());
+
         ValueOutput skills = output.child("WuxiaSkills");
         skills.putInt("jibenquanjiao", this.skills.get(Skill.JIBENQUANJIAO)); // 基本拳脚
         skills.putInt("jibenneigong", this.skills.get(Skill.JIBENNEIGONG)); // 基本内功
@@ -101,6 +106,8 @@ public class PlayerMixin implements PlayerMixinExtension {
         this.wuxiaMaxHealth = input.getIntOr("wuxiaMaxHealth", 0);
         this.wuxiaDeltaHealth = input.getIntOr("wuxiaDeltaHealth", 0);
         this.wuxiaHealthPercent = input.getIntOr("wuxiaHealthPercent", 0);
+        this.wuxiaAction = Action.safeValueOf(input.getStringOr("wuxiaAction", "none").toUpperCase());
+
         ValueInput skills = input.child("WuxiaSkills").orElseThrow();
         this.skills.replace(Skill.JIBENQUANJIAO, skills.getIntOr("jibenquanjiao", 0));
         this.skills.replace(Skill.JIBENNEIGONG, skills.getIntOr("jibenneigong", 0));
@@ -144,7 +151,7 @@ public class PlayerMixin implements PlayerMixinExtension {
                 this.wuxiaAttributesPacketSendCounter--;
             } else {
                 this.wuxiaAttributesPacketSendCounter = 19;
-                WuxiaAttributesS2CPayload wuxiaAttributesS2CPayload = new WuxiaAttributesS2CPayload(this.wuxiaAttributes, this.wuxiaHealth, this.wuxiaMaxHealth);
+                WuxiaAttributesS2CPayload wuxiaAttributesS2CPayload = new WuxiaAttributesS2CPayload(this.wuxiaAttributes, this.wuxiaHealth, this.wuxiaMaxHealth, this.wuxiaAction.name());
                 ServerPlayer serverPlayer = (ServerPlayer) instance;
                 ServerPlayNetworking.send(serverPlayer, wuxiaAttributesS2CPayload);
             }
@@ -196,6 +203,13 @@ public class PlayerMixin implements PlayerMixinExtension {
     @Redirect(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;hurtOrSimulate(Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
     public boolean hurtOrSimulate(Entity instance, DamageSource source, float damage) {
         return instance.hurtOrSimulate(source, this.awakened ? this.wuxia$getAttack() : damage);
+    }
+
+    @Inject(method = "travel", at = @At(value = "HEAD"), cancellable = true)
+    public void travel(Vec3 input, CallbackInfo ci) {
+        if (this.wuxiaAction != Action.NONE) {
+            ci.cancel();
+        }
     }
 
     @Unique
@@ -589,5 +603,15 @@ public class PlayerMixin implements PlayerMixinExtension {
     @Override
     public void wuxia$setSkill(Skill skill, int value) {
         this.skills.replace(skill, value);
+    }
+
+    @Override
+    public void wuxia$setAction(Action action) {
+        this.wuxiaAction = action;
+    }
+
+    @Override
+    public Action wuxia$getAction() {
+        return this.wuxiaAction;
     }
 }

@@ -1,11 +1,12 @@
 package com.aiden.wuxia.payloads;
 
+import com.aiden.wuxia.enums.Action;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
 public interface Codecs {
-    StreamCodec<ByteBuf, int[]> INT_ARRAY = new StreamCodec<ByteBuf, int[]>() {
+    StreamCodec<ByteBuf, int[]> INT_ARRAY = new StreamCodec<>() {
         @Override
         public int[] decode(ByteBuf input) {
             int length = ByteBufCodecs.readCount(input, 1024);

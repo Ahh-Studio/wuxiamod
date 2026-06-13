@@ -1,6 +1,7 @@
 package com.aiden.wuxia.mixin_extension;
 
-import com.aiden.wuxia.skill.Skill;
+import com.aiden.wuxia.enums.Action;
+import com.aiden.wuxia.enums.Skill;
 
 import java.util.Map;
 
@@ -69,4 +70,6 @@ public interface PlayerMixinExtension {
     void wuxia$setParryPercent(int parryPercent);
     Map<Skill, Integer> wuxia$getAllSkills();
     void wuxia$setSkill(Skill skill, int value);
+    void wuxia$setAction(Action action);
+    Action wuxia$getAction();
 }
