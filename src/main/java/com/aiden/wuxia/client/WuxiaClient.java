@@ -14,7 +14,6 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.player.Player;
 import org.lwjgl.glfw.GLFW;
 
 public class WuxiaClient implements ClientModInitializer {
@@ -35,16 +34,33 @@ public class WuxiaClient implements ClientModInitializer {
         HudElementRegistry.attachElementBefore(
                 VanillaHudElements.HEALTH_BAR,
                 Identifier.fromNamespaceAndPath(WuxiaMod.MOD_ID, "health"),
-                (graphics, tracker) -> {
+                (graphics, _) -> {
                     LocalPlayer localPlayer = Minecraft.getInstance().player;
                     if (localPlayer == null) return;
                     PlayerMixinExtension playerMixinExtension = (PlayerMixinExtension) localPlayer;
                     int maxHealth = playerMixinExtension.wuxia$getMaxHealth();
                     int health = playerMixinExtension.wuxia$getHealth();
-                    String s = "Health: " + health + " / " + maxHealth;
+                    int color = getHealthColor(health, maxHealth);
 
-                    graphics.text(Minecraft.getInstance().font, s, 40, 40, 0xFFFFFFFF);
+                    String s = "Health: " + health + " / " + maxHealth;
+                    graphics.text(Minecraft.getInstance().font, s, 40, 40, color);
                 }
         );
+    }
+
+    private int getHealthColor(int health, int maxHealth) {
+        float healthPercent = (float) health / maxHealth;
+        int color = 0xFFFFFFFF;
+
+        if (healthPercent > 0.8) {
+            color = 0xFF00FF00;
+        } else if (0.5 < healthPercent && healthPercent <= 0.8) {
+            color = 0xFF008000;
+        } else if (0.2 < healthPercent && healthPercent <= 0.5) {
+            color = 0xFF808000;
+        } else if (0.0 < healthPercent && healthPercent <= 0.2) {
+            color = 0xFFFF0000;
+        }
+        return color;
     }
 }

@@ -197,6 +197,16 @@ public class PlayerMixin implements PlayerMixinExtension {
                     wuxia$getInnateStrength() * wuxia$getAcquiredStrength() * 0.1 +
                     wuxia$getDeltaParry()
             ) * (100 + wuxia$getParryPercent()) / 100));
+
+            if (this.wuxiaAction == Action.HEAL && this.wuxiaHealth < this.wuxiaMaxHealth) {
+                int i = this.wuxiaMaxHealth / 40;
+                this.wuxiaHealth = Math.min(this.wuxiaMaxHealth, this.wuxiaHealth + i);
+            }
+
+            if (this.wuxiaAction == Action.MEDITATE && this.wuxia$getMana() < this.wuxia$getMaxMana()) {
+                int i = this.wuxia$getMana() / 20;
+                this.wuxia$setMana(Math.min(this.wuxia$getMaxMana(), wuxia$getMana() + i));
+            }
         }
     }
 

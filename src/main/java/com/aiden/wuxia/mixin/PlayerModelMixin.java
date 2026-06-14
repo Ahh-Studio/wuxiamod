@@ -19,13 +19,13 @@ public abstract class PlayerModelMixin {
         AvatarRenderStateMixinExtension stateExt = (AvatarRenderStateMixinExtension) state;
         switch (stateExt.wuxia$getAction()) {
             case HEAL -> {
-                instance.head.y += 16.0F;
-                instance.hat.y += 16.0F;
-                instance.body.y += 16.0F;
-                instance.rightArm.y += 16.0F;
-                instance.leftArm.y += 16.0F;
-                instance.rightLeg.y += 16.0F;
-                instance.leftLeg.y += 16.0F;
+                instance.head.y += 10.0F;
+                instance.hat.y += 10.0F;
+                instance.body.y += 10.0F;
+                instance.rightArm.y += 10.0F;
+                instance.leftArm.y += 10.0F;
+                instance.rightLeg.y += 10.0F;
+                instance.leftLeg.y += 10.0F;
 
                 instance.rightLeg.xRot = (float) (-Math.PI / 2);
                 instance.rightLeg.yRot = (float) (Math.PI / 10);
@@ -35,13 +35,13 @@ public abstract class PlayerModelMixin {
                 instance.leftLeg.zRot = -0.07853982F;
             }
             case MEDITATE -> {
-                instance.head.y += 16.0F;
-                instance.hat.y += 16.0F;
-                instance.body.y += 16.0F;
-                instance.rightArm.y += 16.0F;
-                instance.leftArm.y += 16.0F;
-                instance.rightLeg.y += 16.0F;
-                instance.leftLeg.y += 16.0F;
+                instance.head.y += 10.0F;
+                instance.hat.y += 10.0F;
+                instance.body.y += 10.0F;
+                instance.rightArm.y += 10.0F;
+                instance.leftArm.y += 10.0F;
+                instance.rightLeg.y += 10.0F;
+                instance.leftLeg.y += 10.0F;
 
                 instance.rightArm.xRot += (float) (-Math.PI / 4);
                 instance.leftArm.xRot += (float) (-Math.PI / 4);
