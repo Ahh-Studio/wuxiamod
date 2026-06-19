@@ -15,18 +15,18 @@ public class AwakenCommand {
             dispatcher.register(Commands.literal("awaken")
                     .requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
                     .then(Commands.argument("awakened", BoolArgumentType.bool())
-                    .executes(context -> {
-                        boolean awakened = BoolArgumentType.getBool(context, "awakened");
-                        CommandSourceStack source = context.getSource();
-                        if (source.isPlayer() && source.getPlayer() != null) {
-                            ServerPlayer player = source.getPlayer();
-                            PlayerMixinExtension playerMixinExtension = (PlayerMixinExtension) player;
-                            playerMixinExtension.wuxia$setAwakened(awakened);
-                            source.sendSuccess(() -> Component.literal(awakened ? "You've awakened! " : "Your abilities have been removed..."), false);
-                            return 1;
-                        }
-                        return 0;
-                    })));
+                            .executes(context -> {
+                                boolean awakened = BoolArgumentType.getBool(context, "awakened");
+                                CommandSourceStack source = context.getSource();
+                                if (source.isPlayer() && source.getPlayer() != null) {
+                                    ServerPlayer player = source.getPlayer();
+                                    PlayerMixinExtension playerMixinExtension = (PlayerMixinExtension) player;
+                                    playerMixinExtension.wuxia$setAwakened(awakened);
+                                    source.sendSuccess(() -> Component.literal(awakened ? "You've awakened! " : "Your abilities have been removed..."), false);
+                                    return 1;
+                                }
+                                return 0;
+                            })));
         });
     }
 }

@@ -7,69 +7,136 @@ import java.util.Map;
 
 public interface PlayerMixinExtension {
     boolean wuxia$isAwakened();
+
     void wuxia$setAwakened(boolean awakened);
+
     int wuxia$getHealth();
+
     void wuxia$setHealth(int health);
+
     int wuxia$getMaxHealth();
+
     void wuxia$setMaxHealth(int maxHealth);
+
     int wuxia$getDeltaHealth();
+
     void wuxia$setDeltaHealth(int deltaHealth);
+
     int wuxia$getHealthPercent();
+
     void wuxia$setHealthPercent(int healthPercent);
+
     int[] wuxia$getAllAttributes();
+
     void wuxia$setAllAttributes(int[] attributes);
+
     int wuxia$getMana();
+
     void wuxia$setMana(int mana);
+
     int wuxia$getMaxMana();
+
     void wuxia$setMaxMana(int mana);
+
     int wuxia$getInnateStrength();
+
     void wuxia$setInnateStrength(int innateStrength);
+
     int wuxia$getAcquiredStrength();
+
     void wuxia$setAcquiredStrength(int acquiredStrength);
+
     int wuxia$getInnateConstitution();
+
     void wuxia$setInnateConstitution(int innateConstitution);
+
     int wuxia$getAcquiredConstitution();
+
     void wuxia$setAcquiredConstitution(int acquiredConstitution);
+
     int wuxia$getInnateAgility();
+
     void wuxia$setInnateAgility(int innateAgility);
+
     int wuxia$getAcquiredAgility();
+
     void wuxia$setAcquiredAgility(int acquiredAgility);
+
     int wuxia$getInnateWisdom();
+
     void wuxia$setInnateWisdom(int innateWisdom);
+
     int wuxia$getAcquiredWisdom();
+
     void wuxia$setAcquiredWisdom(int acquiredWisdom);
+
     int wuxia$getAttack();
+
     void wuxia$setAttack(int attack);
+
     int wuxia$getDefense();
+
     void wuxia$setDefense(int defense);
+
     int wuxia$getAccuracy();
+
     void wuxia$setAccuracy(int accuracy);
+
     int wuxia$getDodge();
+
     void wuxia$setDodge(int dodge);
+
     int wuxia$getParry();
+
     void wuxia$setParry(int parry);
+
     int wuxia$getDeltaAttack();
+
     void wuxia$setDeltaAttack(int dAttack);
+
     int wuxia$getDeltaDefense();
+
     void wuxia$setDeltaDefense(int dDefense);
+
     int wuxia$getDeltaAccuracy();
+
     void wuxia$setDeltaAccuracy(int dAccuracy);
+
     int wuxia$getDeltaDodge();
+
     void wuxia$setDeltaDodge(int dDodge);
+
     int wuxia$getDeltaParry();
+
     void wuxia$setDeltaParry(int dParry);
+
     int wuxia$getAttackPercent();
+
     void wuxia$setAttackPercent(int attackPercent);
+
     int wuxia$getDefensePercent();
+
     void wuxia$setDefensePercent(int defensePercent);
+
     int wuxia$getAccuracyPercent();
+
     void wuxia$setAccuracyPercent(int accuracyPercent);
+
     int wuxia$getDodgePercent();
+
     void wuxia$setDodgePercent(int dodgePercent);
+
     int wuxia$getParryPercent();
+
     void wuxia$setParryPercent(int parryPercent);
+
     Map<Skill, Integer> wuxia$getAllSkills();
+
     void wuxia$setSkill(Skill skill, int value);
+
     void wuxia$setAction(Action action);
+
     Action wuxia$getAction();
+
+    void wuxia$equipSkill(Skill.Type type, Skill skill);
 }

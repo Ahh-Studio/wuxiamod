@@ -9,8 +9,6 @@ import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.storage.loot.functions.SetAttributesFunction;
 
 public class MenuScreen extends Screen {
     public MenuScreen() {

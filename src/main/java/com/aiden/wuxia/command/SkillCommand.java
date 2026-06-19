@@ -1,7 +1,7 @@
 package com.aiden.wuxia.command;
 
-import com.aiden.wuxia.mixin_extension.PlayerMixinExtension;
 import com.aiden.wuxia.enums.Skill;
+import com.aiden.wuxia.mixin_extension.PlayerMixinExtension;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -27,7 +27,26 @@ public class SkillCommand {
                                 }
                                 return 0;
                             })
-                    )));
+                    ))
+                    .then(Commands.literal("equip").then(Commands.argument("type", StringArgumentType.string()).then(Commands.argument("skill", StringArgumentType.string())
+                            .executes(context -> {
+                                String type = StringArgumentType.getString(context, "type");
+                                Skill skill = Skill.safeValueOf(StringArgumentType.getString(context, "skill"));
+                                if (skill != null && (type.equals("QUANJIAO") ||
+                                        type.equals("NEIGONG") ||
+                                        type.equals("ZHAOJIA") ||
+                                        type.equals("QINGGONG") ||
+                                        type.equals("JIANFA")
+                                )) {
+                                    Skill.Type skillType = Skill.Type.valueOf(type);
+                                    Player player = context.getSource().getPlayer();
+                                    PlayerMixinExtension playerMixinExtension = (PlayerMixinExtension) player;
+                                    playerMixinExtension.wuxia$equipSkill(skillType, skill);
+                                    return 1;
+                                }
+                                return 0;
+                            })
+                    ))));
         });
     }
 }
