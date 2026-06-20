@@ -17,9 +17,11 @@ public class PlayerUtil {
         wuxiaSkills.putInt("huashanjianfa", skills.get(Skill.HUASHANJIANFA)); // 华山剑法
         wuxiaSkills.putInt("hengshanjianfa", skills.get(Skill.HENGSHANJIANFA)); // 恒山剑法
         wuxiaSkills.putInt("songshanjianfa", skills.get(Skill.SONGSHANJIANFA)); // 嵩山剑法
+        wuxiaSkills.putInt("huashanquanfa", skills.get(Skill.HUASHANQUANFA)); // 华山拳法
+        wuxiaSkills.putInt("pishipoyuquan", skills.get(Skill.PISHIPOYUQUAN)); // 劈石破玉拳
     }
 
-    public static void readAdditionalSkillsData(ValueInput input, Map<Skill, Integer> wuxiaSkills) {
+    public static Map<Skill, Integer> readAdditionalSkillsData(ValueInput input, Map<Skill, Integer> wuxiaSkills) {
         ValueInput skills = input.child("WuxiaSkills").orElseThrow();
         wuxiaSkills.replace(Skill.JIBENQUANJIAO, skills.getIntOr("jibenquanjiao", 0));
         wuxiaSkills.replace(Skill.JIBENNEIGONG, skills.getIntOr("jibenneigong", 0));
@@ -29,6 +31,9 @@ public class PlayerUtil {
         wuxiaSkills.replace(Skill.HUASHANJIANFA, skills.getIntOr("huashanjianfa", 0));
         wuxiaSkills.replace(Skill.HENGSHANJIANFA, skills.getIntOr("hengshanjianfa", 0));
         wuxiaSkills.replace(Skill.SONGSHANJIANFA, skills.getIntOr("songshanjianfa", 0));
+        wuxiaSkills.replace(Skill.HUASHANQUANFA, skills.getIntOr("huashanquanfa", 0));
+        wuxiaSkills.replace(Skill.PISHIPOYUQUAN, skills.getIntOr("pishipoyuquan", 0));
+        return wuxiaSkills;
     }
 
     public static void addAdditionalEquippedSkillsData(ValueOutput output, Skill[] equippedSkills) {
@@ -40,13 +45,14 @@ public class PlayerUtil {
         wuxiaEquippedSkills.putString("jianfa", equippedSkills[4].name().toLowerCase());
     }
 
-    public static void readAdditionalEquippedSkillsData(ValueInput input, Skill[] wuxiaEquippedSkills) {
+    public static Skill[] readAdditionalEquippedSkillsData(ValueInput input, Skill[] wuxiaEquippedSkills) {
         ValueInput equippedSkills = input.child("WuxiaEquippedSkills").orElseThrow();
         wuxiaEquippedSkills[0] = Skill.safeValueOf(equippedSkills.getStringOr("quanjiao", "jibenquanjiao").toUpperCase());
         wuxiaEquippedSkills[1] = Skill.safeValueOf(equippedSkills.getStringOr("neigong", "jibenneigong").toUpperCase());
         wuxiaEquippedSkills[2] = Skill.safeValueOf(equippedSkills.getStringOr("zhaojia", "jibenzhaojia").toUpperCase());
         wuxiaEquippedSkills[3] = Skill.safeValueOf(equippedSkills.getStringOr("qinggong", "jibenqinggong").toUpperCase());
         wuxiaEquippedSkills[4] = Skill.safeValueOf(equippedSkills.getStringOr("jianfa", "jibenjianfa").toUpperCase());
+        return wuxiaEquippedSkills;
     }
 
     public static void addAdditionalAttributesData(ValueOutput output, int[] wuxiaAttributes) {
@@ -78,7 +84,7 @@ public class PlayerUtil {
         attributes.putInt("parry_percent", wuxiaAttributes[24]);
     }
 
-    public static void readAdditionalAttributesData(ValueInput input, int[] wuxiaAttributes) {
+    public static int[] readAdditionalAttributesData(ValueInput input, int[] wuxiaAttributes) {
         ValueInput attributes = input.child("WuxiaAttributes").orElseThrow();
         wuxiaAttributes[0] = attributes.getIntOr("mana", 0); // 内力
         wuxiaAttributes[1] = attributes.getIntOr("max_mana", 0); // 内力上限
@@ -105,5 +111,6 @@ public class PlayerUtil {
         wuxiaAttributes[22] = attributes.getIntOr("accuracy_percent", 0);
         wuxiaAttributes[23] = attributes.getIntOr("dodge_percent", 0);
         wuxiaAttributes[24] = attributes.getIntOr("parry_percent", 0);
+        return wuxiaAttributes;
     }
 }

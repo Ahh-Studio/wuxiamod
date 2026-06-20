@@ -3,9 +3,11 @@ package com.aiden.wuxia.client;
 import com.aiden.wuxia.WuxiaMod;
 import com.aiden.wuxia.client.keybinding.ModKeyBindings;
 import com.aiden.wuxia.mixin_extension.PlayerMixinExtension;
-import com.aiden.wuxia.screen.MenuScreen;
+import com.aiden.wuxia.client.screen.MenuScreen;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
@@ -16,6 +18,7 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
+@Environment(EnvType.CLIENT)
 public class WuxiaClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {

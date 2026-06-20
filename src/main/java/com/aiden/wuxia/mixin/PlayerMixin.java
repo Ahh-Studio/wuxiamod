@@ -1,6 +1,7 @@
 package com.aiden.wuxia.mixin;
 
 import com.aiden.wuxia.enums.Action;
+import com.aiden.wuxia.enums.Rarity;
 import com.aiden.wuxia.enums.Skill;
 import com.aiden.wuxia.mixin.accessor.LivingEntityAccessor;
 import com.aiden.wuxia.mixin.invoker.PlayerEntityInvoker;
@@ -28,37 +29,32 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * 为玩家添加了一些实体数据。如技能、属性、武侠生命值、是否觉醒等。<br>
+ * 还修改了一些玩家的计算逻辑。
+ * @author Aiden
+ */
 @Mixin(Player.class)
 public class PlayerMixin implements PlayerMixinExtension {
     // 基本拳脚、基本内功、基本招架、基本轻功、基本剑法
-    @Unique
-    public Map<Skill, Integer> skills = new HashMap<>();
-    @Unique
-    public int[] wuxiaAttributes = {
+    @Unique public Map<Skill, Integer> skills = new HashMap<>();
+    @Unique public int[] wuxiaAttributes = {
             0, 0, // 内力、内力上限 [0~1]
             25, 0, 25, 0, 15, 0, 15, 0, // 先天臂力、后天臂力、先天根骨、后天根骨、先天身法、后天身法、先天悟性、后天悟性 [2~9]
             0, 0, 0, 0, 0, // 攻击、防御、命中、躲闪、招架 [10~14]
             0, 0, 0, 0, 0, // Δ攻击、Δ防御、Δ命中、Δ躲闪、Δ招架 [15~19]
             0, 0, 0, 0, 0 // 攻击%、防御%、命中%、躲闪%、招架% [20~24]
     };
-    @Unique
-    public Skill[] equippedSkills = {
+    @Unique public Skill[] equippedSkills = {
             Skill.JIBENQUANJIAO, Skill.JIBENNEIGONG, Skill.JIBENZHAOJIA, Skill.JIBENQINGGONG, Skill.JIBENJIANFA
     };
-    @Unique
-    public boolean awakened = false;
-    @Unique
-    public int wuxiaHealth = 1;
-    @Unique
-    public int wuxiaMaxHealth = 0;
-    @Unique
-    public int wuxiaDeltaHealth = 0;
-    @Unique
-    public int wuxiaHealthPercent = 0;
-    @Unique
-    private int wuxiaAttributesPacketSendCounter = 19;
-    @Unique
-    public Action wuxiaAction = Action.NONE;
+    @Unique public boolean awakened = false;
+    @Unique public int wuxiaHealth = 1;
+    @Unique public int wuxiaMaxHealth = 0;
+    @Unique public int wuxiaDeltaHealth = 0;
+    @Unique public int wuxiaHealthPercent = 0;
+    @Unique private int wuxiaAttributesPacketSendCounter = 19;
+    @Unique public Action wuxiaAction = Action.NONE;
 
     @Inject(method = "<init>", at = @At(value = "TAIL"))
     public void injectedInit(Level level, GameProfile gameProfile, CallbackInfo ci) {
@@ -70,6 +66,8 @@ public class PlayerMixin implements PlayerMixinExtension {
         this.skills.put(Skill.HUASHANJIANFA, 0);
         this.skills.put(Skill.HENGSHANJIANFA, 0);
         this.skills.put(Skill.SONGSHANJIANFA, 0);
+        this.skills.put(Skill.HUASHANQUANFA, 0);
+        this.skills.put(Skill.PISHIPOYUQUAN, 0);
     }
 
     @Inject(method = "addAdditionalSaveData", at = @At(value = "TAIL"))
@@ -95,72 +93,38 @@ public class PlayerMixin implements PlayerMixinExtension {
         this.wuxiaHealthPercent = input.getIntOr("wuxiaHealthPercent", 0);
         this.wuxiaAction = Action.safeValueOf(input.getStringOr("wuxiaAction", "none").toUpperCase());
 
-        PlayerUtil.readAdditionalSkillsData(input, this.skills);
-        PlayerUtil.readAdditionalEquippedSkillsData(input, this.equippedSkills);
-        PlayerUtil.readAdditionalAttributesData(input, this.wuxiaAttributes);
+        this.skills = PlayerUtil.readAdditionalSkillsData(input, this.skills);
+        this.equippedSkills = PlayerUtil.readAdditionalEquippedSkillsData(input, this.equippedSkills);
+        this.wuxiaAttributes = PlayerUtil.readAdditionalAttributesData(input, this.wuxiaAttributes);
     }
 
     @Inject(method = "tick", at = @At(value = "TAIL"))
     public void tick(CallbackInfo ci) {
         Player instance = (Player) (Object) this;
         if (this.awakened) {
+            // 定时发包，把数据同步到客户端
             if (this.wuxiaAttributesPacketSendCounter > 0) {
                 this.wuxiaAttributesPacketSendCounter--;
             } else {
                 this.wuxiaAttributesPacketSendCounter = 19;
-                WuxiaAttributesS2CPayload wuxiaAttributesS2CPayload = new WuxiaAttributesS2CPayload(this.wuxiaAttributes, this.wuxiaHealth, this.wuxiaMaxHealth, this.wuxiaAction.name());
+                WuxiaAttributesS2CPayload wuxiaAttributesS2CPayload = new WuxiaAttributesS2CPayload(
+                        this.wuxiaAttributes, this.wuxiaHealth, this.wuxiaMaxHealth, this.wuxiaAction.name(), this.skills
+                );
                 ServerPlayer serverPlayer = (ServerPlayer) instance;
                 ServerPlayNetworking.send(serverPlayer, wuxiaAttributesS2CPayload);
             }
 
-            wuxia$setMaxHealth((int) Math.floor((wuxia$getInnateConstitution() * 5 +
-                    (wuxia$getMaxMana() * 0.1 + wuxia$getInnateConstitution() * wuxia$getAcquiredConstitution() + wuxia$getDeltaHealth())
-            ) * (100 + wuxia$getHealthPercent()) / 100));
+            // 更新属性数值
+            this.updateAttributes();
 
-            wuxia$setDeltaAttack(getMeleeAttackDamage() + getDamageBonusFromSkill());
-            wuxia$setDeltaDefense(0);
-            wuxia$setDeltaAccuracy(0);
-            wuxia$setDeltaDodge(0);
-            wuxia$setDeltaParry(
-                    this.skills.get(Skill.JIBENZHAOJIA)
-            );
-            wuxia$setAcquiredStrength(
-                    (int) Math.floor(this.skills.get(Skill.JIBENQUANJIAO) * 0.1)
-            );
-            wuxia$setAcquiredConstitution(
-                    (int) Math.floor(this.skills.get(Skill.JIBENNEIGONG) * 0.1)
-            );
-            wuxia$setAcquiredAgility(
-                    (int) Math.floor(this.skills.get(Skill.JIBENQINGGONG) * 0.1)
-            );
-            // 更新: 攻击防御命中躲闪招架
-            this.wuxia$setAttack((int) Math.floor((wuxia$getInnateStrength() +
-                    wuxia$getInnateStrength() * wuxia$getAcquiredStrength() * 0.1 +
-                    wuxia$getDeltaAttack()
-            ) * (100 + wuxia$getAttackPercent()) / 100));
-            this.wuxia$setDefense((int) Math.floor(((wuxia$getInnateStrength() + wuxia$getInnateConstitution()) * 0.1 +
-                    wuxia$getInnateConstitution() * wuxia$getAcquiredConstitution() * 0.1 +
-                    wuxia$getDeltaDefense()
-            ) * (100 + wuxia$getDefensePercent()) / 100));
-            this.wuxia$setAccuracy((int) Math.floor((wuxia$getInnateAgility() * 0.5 +
-                    wuxia$getDeltaAccuracy()
-            ) * (100 + wuxia$getAccuracyPercent()) / 100));
-            this.wuxia$setDodge((int) Math.floor((wuxia$getInnateAgility() * 0.5 +
-                    wuxia$getInnateAgility() * wuxia$getAcquiredAgility() * 0.1 +
-                    wuxia$getDeltaDodge()
-            ) * (100 + wuxia$getDodgePercent()) / 100));
-            this.wuxia$setParry((int) Math.floor((wuxia$getInnateStrength() * 0.5 +
-                    wuxia$getInnateStrength() * wuxia$getAcquiredStrength() * 0.1 +
-                    wuxia$getDeltaParry()
-            ) * (100 + wuxia$getParryPercent()) / 100));
-
+            // 疗伤和打坐逻辑
             if (this.wuxiaAction == Action.HEAL && this.wuxiaHealth < this.wuxiaMaxHealth) {
                 int i = this.wuxiaMaxHealth / 40;
                 this.wuxiaHealth = Math.min(this.wuxiaMaxHealth, this.wuxiaHealth + i);
             }
 
             if (this.wuxiaAction == Action.MEDITATE && this.wuxia$getMana() < this.wuxia$getMaxMana()) {
-                int i = this.wuxia$getMana() / 20;
+                int i = this.wuxia$getMaxMana() / 20;
                 this.wuxia$setMana(Math.min(this.wuxia$getMaxMana(), wuxia$getMana() + i));
             }
         }
@@ -192,16 +156,192 @@ public class PlayerMixin implements PlayerMixinExtension {
     }
 
     @Unique
+    private void updateAttributes() {
+        // 最大生命值
+        wuxia$setMaxHealth((int) Math.floor((wuxia$getInnateConstitution() * 5 +
+                (wuxia$getMaxMana() * 0.1 + wuxia$getInnateConstitution() * wuxia$getAcquiredConstitution() + wuxia$getDeltaHealth())
+        ) * (100 + wuxia$getHealthPercent()) / 100));
+
+        // Δ属性
+        wuxia$setDeltaAttack(getMeleeAttackDamage() + getDamageBonusFromSkill());
+        wuxia$setDeltaDefense(getDefenseBonusFromSkill());
+        wuxia$setDeltaAccuracy(getAccuracyBonusFromSkill());
+        wuxia$setDeltaDodge(getDodgeBonusFromSkill());
+        wuxia$setDeltaParry(getParryBonusFromSkill());
+
+
+
+        // 后天臂力、根骨、身法
+        wuxia$setAcquiredStrength(
+                (int) Math.floor(this.skills.get(Skill.JIBENQUANJIAO) * 0.1)
+        );
+        wuxia$setAcquiredConstitution(
+                (int) Math.floor(this.skills.get(Skill.JIBENNEIGONG) * 0.1)
+        );
+        wuxia$setAcquiredAgility(
+                (int) Math.floor(this.skills.get(Skill.JIBENQINGGONG) * 0.1)
+        );
+
+        // 更新攻击、防御、命中、躲闪、招架的值
+        this.wuxia$setAttack((int) Math.floor((wuxia$getInnateStrength() +
+                wuxia$getInnateStrength() * wuxia$getAcquiredStrength() * 0.1 +
+                wuxia$getDeltaAttack()
+        ) * (100 + wuxia$getAttackPercent()) / 100));
+        this.wuxia$setDefense((int) Math.floor(((wuxia$getInnateStrength() + wuxia$getInnateConstitution()) * 0.1 +
+                wuxia$getInnateConstitution() * wuxia$getAcquiredConstitution() * 0.1 +
+                wuxia$getDeltaDefense()
+        ) * (100 + wuxia$getDefensePercent()) / 100));
+        this.wuxia$setAccuracy((int) Math.floor((wuxia$getInnateAgility() * 0.5 +
+                wuxia$getDeltaAccuracy()
+        ) * (100 + wuxia$getAccuracyPercent()) / 100));
+        this.wuxia$setDodge((int) Math.floor((wuxia$getInnateAgility() * 0.5 +
+                wuxia$getInnateAgility() * wuxia$getAcquiredAgility() * 0.1 +
+                wuxia$getDeltaDodge()
+        ) * (100 + wuxia$getDodgePercent()) / 100));
+        this.wuxia$setParry((int) Math.floor((wuxia$getInnateStrength() * 0.5 +
+                wuxia$getInnateStrength() * wuxia$getAcquiredStrength() * 0.1 +
+                wuxia$getDeltaParry()
+        ) * (100 + wuxia$getParryPercent()) / 100));
+    }
+
+    @Unique
     private int getDamageBonusFromSkill() {
-        int jibenjianfaDamageBonus = this.skills.get(Skill.JIBENJIANFA);
-        Skill specialJianfa = this.equippedSkills[4];
-        int specialJianfaDamageBonus = 0;
-        switch (specialJianfa) {
-            case HUASHANJIANFA -> specialJianfaDamageBonus = this.skills.get(Skill.HUASHANJIANFA) + 10;
-            case HENGSHANJIANFA -> specialJianfaDamageBonus = this.skills.get(Skill.HENGSHANJIANFA) + 20;
-            case SONGSHANJIANFA -> specialJianfaDamageBonus = this.skills.get(Skill.SONGSHANJIANFA) * 2 + 10;
+        int damageBonus = 0;
+        Skill[] allSkills = Skill.values();
+        for (Skill skill : allSkills) {
+            int lv = this.skills.get(skill);
+            if (this.skills.get(skill) <= 0) {
+                continue;
+            }
+            if (skill.rarity == Rarity.COMMON) {
+                damageBonus += skill.property.attackBonus.apply(lv);
+                continue;
+            }
+
+            boolean equipped = false;
+            for (Skill skill1 : this.equippedSkills) {
+                if (skill == skill1) {
+                    equipped = true;
+                    break;
+                }
+            }
+
+            if (equipped) damageBonus += skill.property.attackBonus.apply(lv);
         }
-        return jibenjianfaDamageBonus + specialJianfaDamageBonus;
+
+        return damageBonus;
+    }
+
+    @Unique
+    private int getDefenseBonusFromSkill() {
+        int defenseBonus = 0;
+        Skill[] allSkills = Skill.values();
+        for (Skill skill : allSkills) {
+            int lv = this.skills.get(skill);
+            if (this.skills.get(skill) <= 0) {
+                continue;
+            }
+            if (skill.rarity == Rarity.COMMON) {
+                defenseBonus += skill.property.defenseBonus.apply(lv);
+                continue;
+            }
+
+            boolean equipped = false;
+            for (Skill skill1 : this.equippedSkills) {
+                if (skill == skill1) {
+                    equipped = true;
+                    break;
+                }
+            }
+
+            if (equipped) defenseBonus += skill.property.defenseBonus.apply(lv);
+        }
+
+        return defenseBonus;
+    }
+
+    @Unique
+    private int getAccuracyBonusFromSkill() {
+        int accuracyBonus = 0;
+        Skill[] allSkills = Skill.values();
+        for (Skill skill : allSkills) {
+            int lv = this.skills.get(skill);
+            if (this.skills.get(skill) <= 0) {
+                continue;
+            }
+            if (skill.rarity == Rarity.COMMON) {
+                accuracyBonus += skill.property.accuracyBonus.apply(lv);
+                continue;
+            }
+
+            boolean equipped = false;
+            for (Skill skill1 : this.equippedSkills) {
+                if (skill == skill1) {
+                    equipped = true;
+                    break;
+                }
+            }
+
+            if (equipped) accuracyBonus += skill.property.accuracyBonus.apply(lv);
+        }
+
+        return accuracyBonus;
+    }
+
+    @Unique
+    private int getDodgeBonusFromSkill() {
+        int dodgeBonus = 0;
+        Skill[] allSkills = Skill.values();
+        for (Skill skill : allSkills) {
+            int lv = this.skills.get(skill);
+            if (this.skills.get(skill) <= 0) {
+                continue;
+            }
+            if (skill.rarity == Rarity.COMMON) {
+                dodgeBonus += skill.property.dodgeBonus.apply(lv);
+                continue;
+            }
+
+            boolean equipped = false;
+            for (Skill skill1 : this.equippedSkills) {
+                if (skill == skill1) {
+                    equipped = true;
+                    break;
+                }
+            }
+
+            if (equipped) dodgeBonus += skill.property.dodgeBonus.apply(lv);
+        }
+
+        return dodgeBonus;
+    }
+
+    @Unique
+    private int getParryBonusFromSkill() {
+        int parryBonus = 0;
+        Skill[] allSkills = Skill.values();
+        for (Skill skill : allSkills) {
+            int lv = this.skills.get(skill);
+            if (this.skills.get(skill) <= 0) {
+                continue;
+            }
+            if (skill.rarity == Rarity.COMMON) {
+                parryBonus += skill.property.parryBonus.apply(lv);
+                continue;
+            }
+
+            boolean equipped = false;
+            for (Skill skill1 : this.equippedSkills) {
+                if (skill == skill1) {
+                    equipped = true;
+                    break;
+                }
+            }
+
+            if (equipped) parryBonus += skill.property.parryBonus.apply(lv);
+        }
+
+        return parryBonus;
     }
 
     @Unique
@@ -578,6 +718,11 @@ public class PlayerMixin implements PlayerMixinExtension {
         return this.skills;
     }
 
+    @Override
+    public void wuxia$setAllSkills(Map<Skill, Integer> skills) {
+        this.skills = skills;
+    }
+
     @Unique
     @Override
     public void wuxia$setSkill(Skill skill, int value) {
@@ -597,11 +742,11 @@ public class PlayerMixin implements PlayerMixinExtension {
     @Override
     public void wuxia$equipSkill(Skill.Type type, Skill skill) {
         switch (type) {
-            case QUANJIAO: this.equippedSkills[0] = skill;
-            case NEIGONG: this.equippedSkills[1] = skill;
-            case ZHAOJIA: this.equippedSkills[2] = skill;
-            case QINGGONG: this.equippedSkills[3] = skill;
-            case JIANFA: this.equippedSkills[4] = skill;
+            case QUANJIAO: this.equippedSkills[0] = skill; break;
+            case NEIGONG: this.equippedSkills[1] = skill; break;
+            case ZHAOJIA: this.equippedSkills[2] = skill; break;
+            case QINGGONG: this.equippedSkills[3] = skill; break;
+            case JIANFA: this.equippedSkills[4] = skill; break;
         }
     }
 }

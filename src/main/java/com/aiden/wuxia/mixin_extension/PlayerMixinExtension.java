@@ -132,6 +132,8 @@ public interface PlayerMixinExtension {
 
     Map<Skill, Integer> wuxia$getAllSkills();
 
+    void wuxia$setAllSkills(Map<Skill, Integer> skills);
+
     void wuxia$setSkill(Skill skill, int value);
 
     void wuxia$setAction(Action action);

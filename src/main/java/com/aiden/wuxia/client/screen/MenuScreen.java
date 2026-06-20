@@ -1,8 +1,10 @@
-package com.aiden.wuxia.screen;
+package com.aiden.wuxia.client.screen;
 
 import com.aiden.wuxia.enums.Action;
 import com.aiden.wuxia.mixin_extension.PlayerMixinExtension;
 import com.aiden.wuxia.payloads.SetActionC2SPayload;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
@@ -10,6 +12,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 
+@Environment(EnvType.CLIENT)
 public class MenuScreen extends Screen {
     public MenuScreen() {
         super(Component.translatable("wuxiaScreen.title"));
@@ -22,7 +25,7 @@ public class MenuScreen extends Screen {
 
         }).bounds(40, 40, 400, 20).build();
         Button skillsButton = Button.builder(Component.translatable("wuxiaScreen.skills"), button -> {
-
+            this.minecraft.setScreen(new SkillsScreen(this));
         }).bounds(40, 70, 400, 20).build();
         Button attributesButton = Button.builder(Component.translatable("wuxiaScreen.attributes"), _ -> {
             this.minecraft.setScreen(new AttributesScreen(this));

@@ -1,15 +1,18 @@
-package com.aiden.wuxia.screen;
+package com.aiden.wuxia.client.screen;
 
 import com.aiden.wuxia.mixin_extension.PlayerMixinExtension;
 import com.aiden.wuxia.payloads.WuxiaAttributesC2SPayload;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 
+@Environment(EnvType.CLIENT)
 public class AttributesScreen extends Screen {
-    public Screen parent;
+    public final Screen parent;
     private String health;
     private String mana, maxMana, innateStrength, acquiredStrength, innateConstitution, acquiredConstitution, innateAgility, acquiredAgility, innateWisdom, acquiredWisdom;
     private String attack, defense, accuracy, dodge, parry;
