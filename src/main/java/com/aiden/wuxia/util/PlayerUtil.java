@@ -1,5 +1,6 @@
 package com.aiden.wuxia.util;
 
+import com.aiden.wuxia.enums.Rarity;
 import com.aiden.wuxia.enums.Skill;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
@@ -9,30 +10,16 @@ import java.util.Map;
 public class PlayerUtil {
     public static void addAdditionalSkillsData(ValueOutput output, Map<Skill, Integer> skills) {
         ValueOutput wuxiaSkills = output.child("WuxiaSkills");
-        wuxiaSkills.putInt("jibenquanjiao", skills.get(Skill.JIBENQUANJIAO)); // 基本拳脚
-        wuxiaSkills.putInt("jibenneigong", skills.get(Skill.JIBENNEIGONG)); // 基本内功
-        wuxiaSkills.putInt("jibenzhaojia", skills.get(Skill.JIBENZHAOJIA)); // 基本招架
-        wuxiaSkills.putInt("jibenqinggong", skills.get(Skill.JIBENQINGGONG)); // 基本轻功
-        wuxiaSkills.putInt("jibenjianfa", skills.get(Skill.JIBENJIANFA)); // 基本剑法
-        wuxiaSkills.putInt("huashanjianfa", skills.get(Skill.HUASHANJIANFA)); // 华山剑法
-        wuxiaSkills.putInt("hengshanjianfa", skills.get(Skill.HENGSHANJIANFA)); // 恒山剑法
-        wuxiaSkills.putInt("songshanjianfa", skills.get(Skill.SONGSHANJIANFA)); // 嵩山剑法
-        wuxiaSkills.putInt("huashanquanfa", skills.get(Skill.HUASHANQUANFA)); // 华山拳法
-        wuxiaSkills.putInt("pishipoyuquan", skills.get(Skill.PISHIPOYUQUAN)); // 劈石破玉拳
+        for (Skill skill : Skill.values()) {
+            wuxiaSkills.putInt(skill.name().toLowerCase(), skills.get(skill));
+        }
     }
 
     public static Map<Skill, Integer> readAdditionalSkillsData(ValueInput input, Map<Skill, Integer> wuxiaSkills) {
         ValueInput skills = input.child("WuxiaSkills").orElseThrow();
-        wuxiaSkills.replace(Skill.JIBENQUANJIAO, skills.getIntOr("jibenquanjiao", 0));
-        wuxiaSkills.replace(Skill.JIBENNEIGONG, skills.getIntOr("jibenneigong", 0));
-        wuxiaSkills.replace(Skill.JIBENZHAOJIA, skills.getIntOr("jibenzhaojia", 0));
-        wuxiaSkills.replace(Skill.JIBENQINGGONG, skills.getIntOr("jibenqinggong", 0));
-        wuxiaSkills.replace(Skill.JIBENJIANFA, skills.getIntOr("jibenjianfa", 0));
-        wuxiaSkills.replace(Skill.HUASHANJIANFA, skills.getIntOr("huashanjianfa", 0));
-        wuxiaSkills.replace(Skill.HENGSHANJIANFA, skills.getIntOr("hengshanjianfa", 0));
-        wuxiaSkills.replace(Skill.SONGSHANJIANFA, skills.getIntOr("songshanjianfa", 0));
-        wuxiaSkills.replace(Skill.HUASHANQUANFA, skills.getIntOr("huashanquanfa", 0));
-        wuxiaSkills.replace(Skill.PISHIPOYUQUAN, skills.getIntOr("pishipoyuquan", 0));
+        for (Skill skill : Skill.values()) {
+            wuxiaSkills.replace(skill, skills.getIntOr(skill.name().toLowerCase(), 0));
+        }
         return wuxiaSkills;
     }
 
@@ -112,5 +99,275 @@ public class PlayerUtil {
         wuxiaAttributes[23] = attributes.getIntOr("dodge_percent", 0);
         wuxiaAttributes[24] = attributes.getIntOr("parry_percent", 0);
         return wuxiaAttributes;
+    }
+
+    public static int getDamageBonusFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
+        int damageBonus = 0;
+        Skill[] allSkills = Skill.values();
+        for (Skill skill : allSkills) {
+            int lv = skills.get(skill);
+            if (skills.get(skill) <= 0) {
+                continue;
+            }
+            if (skill.rarity == Rarity.COMMON) {
+                damageBonus += skill.property.attackBonus.apply(lv);
+                continue;
+            }
+
+            boolean equipped = false;
+            for (Skill skill1 : equippedSkills) {
+                if (skill == skill1) {
+                    equipped = true;
+                    break;
+                }
+            }
+
+            if (equipped) damageBonus += skill.property.attackBonus.apply(lv);
+        }
+
+        return damageBonus;
+    }
+
+    public static int getDefenseBonusFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
+        int defenseBonus = 0;
+        Skill[] allSkills = Skill.values();
+        for (Skill skill : allSkills) {
+            int lv = skills.get(skill);
+            if (skills.get(skill) <= 0) {
+                continue;
+            }
+            if (skill.rarity == Rarity.COMMON) {
+                defenseBonus += skill.property.defenseBonus.apply(lv);
+                continue;
+            }
+
+            boolean equipped = false;
+            for (Skill skill1 : equippedSkills) {
+                if (skill == skill1) {
+                    equipped = true;
+                    break;
+                }
+            }
+
+            if (equipped) defenseBonus += skill.property.defenseBonus.apply(lv);
+        }
+
+        return defenseBonus;
+    }
+
+    public static int getAccuracyBonusFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
+        int accuracyBonus = 0;
+        Skill[] allSkills = Skill.values();
+        for (Skill skill : allSkills) {
+            int lv = skills.get(skill);
+            if (skills.get(skill) <= 0) {
+                continue;
+            }
+            if (skill.rarity == Rarity.COMMON) {
+                accuracyBonus += skill.property.accuracyBonus.apply(lv);
+                continue;
+            }
+
+            boolean equipped = false;
+            for (Skill skill1 : equippedSkills) {
+                if (skill == skill1) {
+                    equipped = true;
+                    break;
+                }
+            }
+
+            if (equipped) accuracyBonus += skill.property.accuracyBonus.apply(lv);
+        }
+
+        return accuracyBonus;
+    }
+
+    public static int getDodgeBonusFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
+        int dodgeBonus = 0;
+        Skill[] allSkills = Skill.values();
+        for (Skill skill : allSkills) {
+            int lv = skills.get(skill);
+            if (skills.get(skill) <= 0) {
+                continue;
+            }
+            if (skill.rarity == Rarity.COMMON) {
+                dodgeBonus += skill.property.dodgeBonus.apply(lv);
+                continue;
+            }
+
+            boolean equipped = false;
+            for (Skill skill1 : equippedSkills) {
+                if (skill == skill1) {
+                    equipped = true;
+                    break;
+                }
+            }
+
+            if (equipped) dodgeBonus += skill.property.dodgeBonus.apply(lv);
+        }
+
+        return dodgeBonus;
+    }
+
+    public static int getParryBonusFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
+        int parryBonus = 0;
+        Skill[] allSkills = Skill.values();
+        for (Skill skill : allSkills) {
+            int lv = skills.get(skill);
+            if (skills.get(skill) <= 0) {
+                continue;
+            }
+            if (skill.rarity == Rarity.COMMON) {
+                parryBonus += skill.property.parryBonus.apply(lv);
+                continue;
+            }
+
+            boolean equipped = false;
+            for (Skill skill1 : equippedSkills) {
+                if (skill == skill1) {
+                    equipped = true;
+                    break;
+                }
+            }
+
+            if (equipped) parryBonus += skill.property.parryBonus.apply(lv);
+        }
+
+        return parryBonus;
+    }
+
+    public static int getDamagePercentFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
+        int damagePercent = 0;
+        Skill[] allSkills = Skill.values();
+        for (Skill skill : allSkills) {
+            int lv = skills.get(skill);
+            if (skills.get(skill) <= 0) {
+                continue;
+            }
+            if (skill.rarity == Rarity.COMMON) {
+                damagePercent += skill.property.attackPercent.apply(lv);
+                continue;
+            }
+
+            boolean equipped = false;
+            for (Skill skill1 : equippedSkills) {
+                if (skill == skill1) {
+                    equipped = true;
+                    break;
+                }
+            }
+
+            if (equipped) damagePercent += skill.property.attackPercent.apply(lv);
+        }
+
+        return damagePercent;
+    }
+
+    public static int getDefensePercentFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
+        int defensePercent = 0;
+        Skill[] allSkills = Skill.values();
+        for (Skill skill : allSkills) {
+            int lv = skills.get(skill);
+            if (skills.get(skill) <= 0) {
+                continue;
+            }
+            if (skill.rarity == Rarity.COMMON) {
+                defensePercent += skill.property.defensePercent.apply(lv);
+                continue;
+            }
+
+            boolean equipped = false;
+            for (Skill skill1 : equippedSkills) {
+                if (skill == skill1) {
+                    equipped = true;
+                    break;
+                }
+            }
+
+            if (equipped) defensePercent += skill.property.defensePercent.apply(lv);
+        }
+
+        return defensePercent;
+    }
+
+    public static int getAccuracyPercentFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
+        int accuracyPercent = 0;
+        Skill[] allSkills = Skill.values();
+        for (Skill skill : allSkills) {
+            int lv = skills.get(skill);
+            if (skills.get(skill) <= 0) {
+                continue;
+            }
+            if (skill.rarity == Rarity.COMMON) {
+                accuracyPercent += skill.property.accuracyPercent.apply(lv);
+                continue;
+            }
+
+            boolean equipped = false;
+            for (Skill skill1 : equippedSkills) {
+                if (skill == skill1) {
+                    equipped = true;
+                    break;
+                }
+            }
+
+            if (equipped) accuracyPercent += skill.property.accuracyPercent.apply(lv);
+        }
+
+        return accuracyPercent;
+    }
+
+    public static int getDodgePercentFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
+        int dodgePercent = 0;
+        Skill[] allSkills = Skill.values();
+        for (Skill skill : allSkills) {
+            int lv = skills.get(skill);
+            if (skills.get(skill) <= 0) {
+                continue;
+            }
+            if (skill.rarity == Rarity.COMMON) {
+                dodgePercent += skill.property.dodgePercent.apply(lv);
+                continue;
+            }
+
+            boolean equipped = false;
+            for (Skill skill1 : equippedSkills) {
+                if (skill == skill1) {
+                    equipped = true;
+                    break;
+                }
+            }
+
+            if (equipped) dodgePercent += skill.property.dodgePercent.apply(lv);
+        }
+
+        return dodgePercent;
+    }
+
+    public static int getParryPercentFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
+        int parryPercent = 0;
+        Skill[] allSkills = Skill.values();
+        for (Skill skill : allSkills) {
+            int lv = skills.get(skill);
+            if (skills.get(skill) <= 0) {
+                continue;
+            }
+            if (skill.rarity == Rarity.COMMON) {
+                parryPercent += skill.property.parryPercent.apply(lv);
+                continue;
+            }
+
+            boolean equipped = false;
+            for (Skill skill1 : equippedSkills) {
+                if (skill == skill1) {
+                    equipped = true;
+                    break;
+                }
+            }
+
+            if (equipped) parryPercent += skill.property.parryPercent.apply(lv);
+        }
+
+        return parryPercent;
     }
 }

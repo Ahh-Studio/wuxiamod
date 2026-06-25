@@ -8,7 +8,6 @@ import org.jspecify.annotations.NonNull;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.IntFunction;
 
 public interface Codecs {
     StreamCodec<ByteBuf, int[]> INT_ARRAY = new StreamCodec<>() {

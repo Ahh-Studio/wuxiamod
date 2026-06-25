@@ -1,0 +1,6 @@
+{
+    "model": {
+        "type": "minecraft:model",
+        "model": "wuxia:block/end_reactor"
+    }
+}

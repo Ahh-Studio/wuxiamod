@@ -1,7 +1,6 @@
 package com.aiden.wuxia.mixin;
 
 import com.aiden.wuxia.enums.Action;
-import com.aiden.wuxia.enums.Rarity;
 import com.aiden.wuxia.enums.Skill;
 import com.aiden.wuxia.mixin.accessor.LivingEntityAccessor;
 import com.aiden.wuxia.mixin.invoker.PlayerEntityInvoker;
@@ -32,6 +31,8 @@ import java.util.Map;
 /**
  * 为玩家添加了一些实体数据。如技能、属性、武侠生命值、是否觉醒等。<br>
  * 还修改了一些玩家的计算逻辑。
+ * @see PlayerMixinExtension
+ * @see PlayerUtil
  * @author Aiden
  */
 @Mixin(Player.class)
@@ -58,16 +59,9 @@ public class PlayerMixin implements PlayerMixinExtension {
 
     @Inject(method = "<init>", at = @At(value = "TAIL"))
     public void injectedInit(Level level, GameProfile gameProfile, CallbackInfo ci) {
-        this.skills.put(Skill.JIBENQUANJIAO, 0);
-        this.skills.put(Skill.JIBENNEIGONG, 0);
-        this.skills.put(Skill.JIBENZHAOJIA, 0);
-        this.skills.put(Skill.JIBENQINGGONG, 0);
-        this.skills.put(Skill.JIBENJIANFA, 0);
-        this.skills.put(Skill.HUASHANJIANFA, 0);
-        this.skills.put(Skill.HENGSHANJIANFA, 0);
-        this.skills.put(Skill.SONGSHANJIANFA, 0);
-        this.skills.put(Skill.HUASHANQUANFA, 0);
-        this.skills.put(Skill.PISHIPOYUQUAN, 0);
+        for (Skill skill : Skill.values()) {
+            this.skills.put(skill, 0);
+        }
     }
 
     @Inject(method = "addAdditionalSaveData", at = @At(value = "TAIL"))
@@ -163,13 +157,18 @@ public class PlayerMixin implements PlayerMixinExtension {
         ) * (100 + wuxia$getHealthPercent()) / 100));
 
         // Δ属性
-        wuxia$setDeltaAttack(getMeleeAttackDamage() + getDamageBonusFromSkill());
-        wuxia$setDeltaDefense(getDefenseBonusFromSkill());
-        wuxia$setDeltaAccuracy(getAccuracyBonusFromSkill());
-        wuxia$setDeltaDodge(getDodgeBonusFromSkill());
-        wuxia$setDeltaParry(getParryBonusFromSkill());
+        wuxia$setDeltaAttack(getMeleeAttackDamage() + PlayerUtil.getDamageBonusFromSkill(this.skills, this.equippedSkills));
+        wuxia$setDeltaDefense(PlayerUtil.getDefenseBonusFromSkill(this.skills, this.equippedSkills));
+        wuxia$setDeltaAccuracy(PlayerUtil.getAccuracyBonusFromSkill(this.skills, this.equippedSkills));
+        wuxia$setDeltaDodge(PlayerUtil.getDodgeBonusFromSkill(this.skills, this.equippedSkills));
+        wuxia$setDeltaParry(PlayerUtil.getParryBonusFromSkill(this.skills, this.equippedSkills));
 
-
+        // 属性%
+        wuxia$setAttackPercent(PlayerUtil.getDamagePercentFromSkill(this.skills, this.equippedSkills));
+        wuxia$setDefensePercent(PlayerUtil.getDefensePercentFromSkill(this.skills, this.equippedSkills));
+        wuxia$setAccuracyPercent(PlayerUtil.getAccuracyPercentFromSkill(this.skills, this.equippedSkills));
+        wuxia$setDodgePercent(PlayerUtil.getDodgePercentFromSkill(this.skills, this.equippedSkills));
+        wuxia$setParryPercent(PlayerUtil.getParryPercentFromSkill(this.skills, this.equippedSkills));
 
         // 后天臂力、根骨、身法
         wuxia$setAcquiredStrength(
@@ -202,146 +201,6 @@ public class PlayerMixin implements PlayerMixinExtension {
                 wuxia$getInnateStrength() * wuxia$getAcquiredStrength() * 0.1 +
                 wuxia$getDeltaParry()
         ) * (100 + wuxia$getParryPercent()) / 100));
-    }
-
-    @Unique
-    private int getDamageBonusFromSkill() {
-        int damageBonus = 0;
-        Skill[] allSkills = Skill.values();
-        for (Skill skill : allSkills) {
-            int lv = this.skills.get(skill);
-            if (this.skills.get(skill) <= 0) {
-                continue;
-            }
-            if (skill.rarity == Rarity.COMMON) {
-                damageBonus += skill.property.attackBonus.apply(lv);
-                continue;
-            }
-
-            boolean equipped = false;
-            for (Skill skill1 : this.equippedSkills) {
-                if (skill == skill1) {
-                    equipped = true;
-                    break;
-                }
-            }
-
-            if (equipped) damageBonus += skill.property.attackBonus.apply(lv);
-        }
-
-        return damageBonus;
-    }
-
-    @Unique
-    private int getDefenseBonusFromSkill() {
-        int defenseBonus = 0;
-        Skill[] allSkills = Skill.values();
-        for (Skill skill : allSkills) {
-            int lv = this.skills.get(skill);
-            if (this.skills.get(skill) <= 0) {
-                continue;
-            }
-            if (skill.rarity == Rarity.COMMON) {
-                defenseBonus += skill.property.defenseBonus.apply(lv);
-                continue;
-            }
-
-            boolean equipped = false;
-            for (Skill skill1 : this.equippedSkills) {
-                if (skill == skill1) {
-                    equipped = true;
-                    break;
-                }
-            }
-
-            if (equipped) defenseBonus += skill.property.defenseBonus.apply(lv);
-        }
-
-        return defenseBonus;
-    }
-
-    @Unique
-    private int getAccuracyBonusFromSkill() {
-        int accuracyBonus = 0;
-        Skill[] allSkills = Skill.values();
-        for (Skill skill : allSkills) {
-            int lv = this.skills.get(skill);
-            if (this.skills.get(skill) <= 0) {
-                continue;
-            }
-            if (skill.rarity == Rarity.COMMON) {
-                accuracyBonus += skill.property.accuracyBonus.apply(lv);
-                continue;
-            }
-
-            boolean equipped = false;
-            for (Skill skill1 : this.equippedSkills) {
-                if (skill == skill1) {
-                    equipped = true;
-                    break;
-                }
-            }
-
-            if (equipped) accuracyBonus += skill.property.accuracyBonus.apply(lv);
-        }
-
-        return accuracyBonus;
-    }
-
-    @Unique
-    private int getDodgeBonusFromSkill() {
-        int dodgeBonus = 0;
-        Skill[] allSkills = Skill.values();
-        for (Skill skill : allSkills) {
-            int lv = this.skills.get(skill);
-            if (this.skills.get(skill) <= 0) {
-                continue;
-            }
-            if (skill.rarity == Rarity.COMMON) {
-                dodgeBonus += skill.property.dodgeBonus.apply(lv);
-                continue;
-            }
-
-            boolean equipped = false;
-            for (Skill skill1 : this.equippedSkills) {
-                if (skill == skill1) {
-                    equipped = true;
-                    break;
-                }
-            }
-
-            if (equipped) dodgeBonus += skill.property.dodgeBonus.apply(lv);
-        }
-
-        return dodgeBonus;
-    }
-
-    @Unique
-    private int getParryBonusFromSkill() {
-        int parryBonus = 0;
-        Skill[] allSkills = Skill.values();
-        for (Skill skill : allSkills) {
-            int lv = this.skills.get(skill);
-            if (this.skills.get(skill) <= 0) {
-                continue;
-            }
-            if (skill.rarity == Rarity.COMMON) {
-                parryBonus += skill.property.parryBonus.apply(lv);
-                continue;
-            }
-
-            boolean equipped = false;
-            for (Skill skill1 : this.equippedSkills) {
-                if (skill == skill1) {
-                    equipped = true;
-                    break;
-                }
-            }
-
-            if (equipped) parryBonus += skill.property.parryBonus.apply(lv);
-        }
-
-        return parryBonus;
     }
 
     @Unique

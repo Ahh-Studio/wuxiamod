@@ -1,15 +1,16 @@
 package com.aiden.wuxia;
 
+import com.aiden.wuxia.block.ModBlocks;
+import com.aiden.wuxia.client.screen.AttributesScreen;
 import com.aiden.wuxia.client.screen.SkillsScreen;
 import com.aiden.wuxia.command.ModCommands;
 import com.aiden.wuxia.enums.Action;
+import com.aiden.wuxia.item.ModItems;
 import com.aiden.wuxia.mixin_extension.PlayerMixinExtension;
 import com.aiden.wuxia.payloads.SetActionC2SPayload;
 import com.aiden.wuxia.payloads.WuxiaAttributesC2SPayload;
 import com.aiden.wuxia.payloads.WuxiaAttributesS2CPayload;
-import com.aiden.wuxia.client.screen.AttributesScreen;
 import net.fabricmc.api.ModInitializer;
-
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
@@ -26,6 +27,8 @@ public class WuxiaMod implements ModInitializer {
     public void onInitialize() {
         LOGGER.info("Wuxia Mod Initialized!");
         ModCommands.init();
+        ModBlocks.initialize();
+        ModItems.initialize();
 
         PayloadTypeRegistry.clientboundPlay().register(WuxiaAttributesS2CPayload.TYPE, WuxiaAttributesS2CPayload.CODEC);
         ClientPlayNetworking.registerGlobalReceiver(WuxiaAttributesS2CPayload.TYPE, (payload, context) -> {
