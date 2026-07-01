@@ -1,0 +1,11 @@
+{
+    "type": "wuxia:jianghu",
+    "generator": {
+        "type": "noise",
+        "biome_source": {
+            "type": "multi_noise",
+            "preset": "overworld"
+        },
+        "settings": "wuxia:jianghu"
+    }
+}

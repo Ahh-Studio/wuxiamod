@@ -32,24 +32,24 @@
         "minecraft:gameplay/respawn_anchor_works": false,
         "minecraft:visual/ambient_light_color": "#0a0a0a",
         "minecraft:visual/cloud_color": "#ccffffff",
-        "minecraft:visual/cloud_height": 192.33,
+        "minecraft:visual/cloud_height": 1000,
         "minecraft:visual/fog_color": "#c0d8ff",
         "minecraft:visual/sky_color": "#78a7ff"
     },
     "coordinate_scale": 1.0,
-    "default_clock": "minecraft:overworld",
+    "default_clock": "wuxia:jianghu",
     "has_ceiling": false,
     "has_ender_dragon_fight": false,
     "has_skylight": true,
-    "height": 384,
+    "height": 2032,
     "infiniburn": "#minecraft:infiniburn_overworld",
-    "logical_height": 384,
-    "min_y": -64,
+    "logical_height": 2032,
+    "min_y": -256,
     "monster_spawn_block_light_limit": 0,
     "monster_spawn_light_level": {
         "type": "minecraft:uniform",
         "max_inclusive": 7,
         "min_inclusive": 0
     },
-    "timelines": "#minecraft:in_overworld"
+    "timelines": "#wuxia:in_jianghu"
 }
