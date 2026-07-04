@@ -9,7 +9,9 @@ import com.aiden.wuxia.payloads.WuxiaAttributesS2CPayload;
 import com.aiden.wuxia.util.PlayerUtil;
 import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -24,6 +26,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -151,10 +154,11 @@ public class PlayerMixin implements PlayerMixinExtension {
 
     @Unique
     private void updateAttributes() {
-        // 最大生命值
+        // 最大生命值、生命值
         wuxia$setMaxHealth((int) Math.floor((wuxia$getInnateConstitution() * 5 +
                 (wuxia$getMaxMana() * 0.1 + wuxia$getInnateConstitution() * wuxia$getAcquiredConstitution() + wuxia$getDeltaHealth())
         ) * (100 + wuxia$getHealthPercent()) / 100));
+        wuxia$setHealth(Mth.clamp(wuxia$getHealth(), 1, wuxia$getMaxHealth()));
 
         // Δ属性
         wuxia$setDeltaAttack(getMeleeAttackDamage() + PlayerUtil.getDamageBonusFromSkill(this.skills, this.equippedSkills));

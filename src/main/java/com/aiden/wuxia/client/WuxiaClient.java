@@ -3,6 +3,7 @@ package com.aiden.wuxia.client;
 import com.aiden.wuxia.WuxiaMod;
 import com.aiden.wuxia.block.ModBlocks;
 import com.aiden.wuxia.client.keybinding.ModKeyBindings;
+import com.aiden.wuxia.client.renderer.block_entity.JianghuPortalRenderer;
 import com.aiden.wuxia.client.screen.EndReactorScreen;
 import com.aiden.wuxia.client.screen.MenuScreen;
 import com.aiden.wuxia.mixin_extension.PlayerMixinExtension;
@@ -18,6 +19,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.resources.Identifier;
 import org.lwjgl.glfw.GLFW;
 
@@ -54,6 +56,8 @@ public class WuxiaClient implements ClientModInitializer {
         );
 
         MenuScreens.register(ModBlocks.END_REACTOR_MENU_TYPE, EndReactorScreen::new);
+
+        BlockEntityRenderers.register(ModBlocks.JIANGHU_PORTAL_BLOCK_ENTITY_TYPE, JianghuPortalRenderer::new);
     }
 
     private int getHealthColor(int health, int maxHealth) {

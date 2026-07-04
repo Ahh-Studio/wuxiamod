@@ -3,6 +3,7 @@ package com.aiden.wuxia.block;
 import com.aiden.wuxia.WuxiaMod;
 import com.aiden.wuxia.block.container_menu.EndReactorMenu;
 import com.aiden.wuxia.block.entity.EndReactorBlockEntity;
+import com.aiden.wuxia.block.entity.JianghuPortalBlockEntity;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -25,6 +26,10 @@ public class ModBlocks {
     public static final BlockEntityType<EndReactorBlockEntity> END_REACTOR_BLOCK_ENTITY_TYPE = registerBlockEntity(
             "end_reactor", EndReactorBlockEntity::new, END_REACTOR);
     public static final MenuType<EndReactorMenu> END_REACTOR_MENU_TYPE = registerMenuType("end_reactor", EndReactorMenu::new);
+
+    public static final Block JIANGHU_PORTAL = register("jianghu_portal", JianghuPortalBlock::new, BlockBehaviour.Properties.ofFullCopy(Blocks.END_PORTAL));
+    public static final BlockEntityType<JianghuPortalBlockEntity> JIANGHU_PORTAL_BLOCK_ENTITY_TYPE = registerBlockEntity(
+            "jianghu_portal", JianghuPortalBlockEntity::new, JIANGHU_PORTAL);
 
     public static void initialize() {
     }
