@@ -1,5 +1,5 @@
 {
-    "aquifers_enabled": true,
+    "aquifers_enabled": false,
     "default_block": {
         "Name": "minecraft:stone"
     },
@@ -15,7 +15,7 @@
         "height": 2032,
         "min_y": -256,
         "size_horizontal": 1,
-        "size_vertical": 4
+        "size_vertical": 2
     },
     "noise_router": {
         "barrier": {
@@ -59,15 +59,54 @@
                                             "argument2": {
                                                 "type": "minecraft:mul",
                                                 "argument1": {
-                                                    "type": "minecraft:y_clamped_gradient",
-                                                    "from_value": 1.0,
-                                                    "from_y": 1008,
-                                                    "to_value": 0.0,
-                                                    "to_y": 1024
-                                                },
+                                "type": "minecraft:range_choice",
+                                "input": "minecraft:overworld/continents",
+                                "min_inclusive": -0.05,
+                                "max_exclusive": 1000000.0,
+                                "when_in_range": {
+                                    "type": "minecraft:range_choice",
+                                    "input": "minecraft:overworld/continents",
+                                    "min_inclusive": 0.25,
+                                    "max_exclusive": 1000000.0,
+                                    "when_in_range": {
+                                        "type": "minecraft:range_choice",
+                                        "input": "minecraft:overworld/continents",
+                                        "min_inclusive": 0.5,
+                                        "max_exclusive": 1000000.0,
+                                        "when_in_range": {
+                                            "type": "minecraft:y_clamped_gradient",
+                                            "from_value": 1.0,
+                                            "from_y": 1000,
+                                            "to_value": 0.0,
+                                            "to_y": 1200
+                                        },
+                                        "when_out_of_range": {
+                                            "type": "minecraft:y_clamped_gradient",
+                                            "from_value": 1.0,
+                                            "from_y": 300,
+                                            "to_value": 0.0,
+                                            "to_y": 500
+                                        }
+                                    },
+                                    "when_out_of_range": {
+                                        "type": "minecraft:y_clamped_gradient",
+                                        "from_value": 1.0,
+                                        "from_y": 120,
+                                        "to_value": 0.0,
+                                        "to_y": 220
+                                    }
+                                },
+                                "when_out_of_range": {
+                                    "type": "minecraft:y_clamped_gradient",
+                                    "from_value": 1.0,
+                                    "from_y": 80,
+                                    "to_value": 0.0,
+                                    "to_y": 150
+                                }
+                            },
                                                 "argument2": {
                                                     "type": "minecraft:add",
-                                                    "argument1": 0.078125,
+                                                    "argument1": -0.078125,
                                                     "argument2": {
                                                         "type": "minecraft:range_choice",
                                                         "input": "wuxia:jianghu/sloped_cheese",
@@ -211,11 +250,50 @@
                                 "argument2": {
                                     "type": "minecraft:mul",
                                     "argument1": {
-                                        "type": "minecraft:y_clamped_gradient",
-                                        "from_value": 1.0,
-                                        "from_y": 1008,
-                                        "to_value": 0.0,
-                                        "to_y": 1024
+                                        "type": "minecraft:range_choice",
+                                        "input": "minecraft:overworld/continents",
+                                        "min_inclusive": -0.05,
+                                        "max_exclusive": 1000000.0,
+                                        "when_in_range": {
+                                            "type": "minecraft:range_choice",
+                                            "input": "minecraft:overworld/continents",
+                                            "min_inclusive": 0.25,
+                                            "max_exclusive": 1000000.0,
+                                            "when_in_range": {
+                                                "type": "minecraft:range_choice",
+                                                "input": "minecraft:overworld/continents",
+                                                "min_inclusive": 0.5,
+                                                "max_exclusive": 1000000.0,
+                                                "when_in_range": {
+                                                    "type": "minecraft:y_clamped_gradient",
+                                                    "from_value": 1.0,
+                                                    "from_y": 1000,
+                                                    "to_value": 0.0,
+                                                    "to_y": 1200
+                                                },
+                                                "when_out_of_range": {
+                                                    "type": "minecraft:y_clamped_gradient",
+                                                    "from_value": 1.0,
+                                                    "from_y": 300,
+                                                    "to_value": 0.0,
+                                                    "to_y": 500
+                                                }
+                                            },
+                                            "when_out_of_range": {
+                                                "type": "minecraft:y_clamped_gradient",
+                                                "from_value": 1.0,
+                                                "from_y": 120,
+                                                "to_value": 0.0,
+                                                "to_y": 220
+                                            }
+                                        },
+                                        "when_out_of_range": {
+                                            "type": "minecraft:y_clamped_gradient",
+                                            "from_value": 1.0,
+                                            "from_y": 80,
+                                            "to_value": 0.0,
+                                            "to_y": 150
+                                        }
                                     },
                                     "argument2": {
                                         "type": "minecraft:add",
