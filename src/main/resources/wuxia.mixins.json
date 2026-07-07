@@ -3,6 +3,7 @@
     "package": "com.aiden.wuxia.mixin",
     "compatibilityLevel": "JAVA_25",
     "mixins": [
+        "NoiseBasedChunkGeneratorMixin",
         "PlayerMixin",
         "accessor.LivingEntityAccessor",
         "invoker.PlayerEntityInvoker"
