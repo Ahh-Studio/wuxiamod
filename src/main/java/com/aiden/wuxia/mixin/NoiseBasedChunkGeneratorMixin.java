@@ -90,7 +90,7 @@ public abstract class NoiseBasedChunkGeneratorMixin {
     private boolean wuxia$shouldRedirect(ChunkPos pos) {
         NoiseBasedChunkGenerator self = (NoiseBasedChunkGenerator) (Object) this;
         return JianghuOverworldTerrain.isInitialized()
-                && self != JianghuOverworldTerrain.getOverworldGenerator()
+                && self == JianghuOverworldTerrain.getJianghuGenerator()
                 && JianghuOverworldTerrain.shouldUseOverworld(pos);
     }
 
@@ -98,7 +98,7 @@ public abstract class NoiseBasedChunkGeneratorMixin {
     private boolean wuxia$shouldRedirect(int blockX, int blockZ) {
         NoiseBasedChunkGenerator self = (NoiseBasedChunkGenerator) (Object) this;
         return JianghuOverworldTerrain.isInitialized()
-                && self != JianghuOverworldTerrain.getOverworldGenerator()
+                && self == JianghuOverworldTerrain.getJianghuGenerator()
                 && JianghuOverworldTerrain.shouldUseOverworld(blockX, blockZ);
     }
 }

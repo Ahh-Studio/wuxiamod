@@ -2,6 +2,7 @@ package com.aiden.wuxia.block;
 
 import com.aiden.wuxia.block.entity.JianghuPortalBlockEntity;
 import com.aiden.wuxia.dimension.ModDimensions;
+import com.aiden.wuxia.mixin_extension.PlayerMixinExtension;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -66,6 +67,12 @@ public class JianghuPortalBlock extends BaseEntityBlock implements Portal {
     ) {
         if (entity.canUsePortal(false)) {
             entity.setAsInsidePortal(this, pos);
+        }
+
+        // 控制玩家的觉醒
+        if (entity instanceof ServerPlayer serverPlayer) {
+            PlayerMixinExtension playerExt = (PlayerMixinExtension) serverPlayer;
+            if (!playerExt.wuxia$isAwakened()) playerExt.wuxia$setAwakened(true);
         }
     }
 

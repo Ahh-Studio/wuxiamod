@@ -1,25 +1,23 @@
 package com.aiden.wuxia;
 
 import com.aiden.wuxia.block.ModBlocks;
-import com.aiden.wuxia.client.screen.AttributesScreen;
-import com.aiden.wuxia.client.screen.SkillsScreen;
 import com.aiden.wuxia.command.ModCommands;
 import com.aiden.wuxia.dimension.JianghuOverworldTerrain;
 import com.aiden.wuxia.dimension.ModDimensions;
 import com.aiden.wuxia.enums.Action;
+import com.aiden.wuxia.skill.Skill;
 import com.aiden.wuxia.item.ModItems;
 import com.aiden.wuxia.mixin_extension.PlayerMixinExtension;
+import com.aiden.wuxia.payloads.EquipSkillC2SPayload;
 import com.aiden.wuxia.payloads.SetActionC2SPayload;
 import com.aiden.wuxia.payloads.WuxiaAttributesC2SPayload;
 import com.aiden.wuxia.payloads.WuxiaAttributesS2CPayload;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.biome.BiomeSource;
 import net.minecraft.world.level.levelgen.NoiseBasedChunkGenerator;
 import org.slf4j.Logger;
@@ -43,42 +41,38 @@ public class WuxiaMod implements ModInitializer {
                 if (jianghuLevel.getChunkSource().getGenerator() instanceof NoiseBasedChunkGenerator noiseGen) {
                     BiomeSource biomeSource = noiseGen.getBiomeSource();
                     long seed = jianghuLevel.getSeed();
-                    JianghuOverworldTerrain.initialize(biomeSource, seed, jianghuLevel.registryAccess());
+                    JianghuOverworldTerrain.initialize(biomeSource, seed, jianghuLevel.registryAccess(), noiseGen);
                     LOGGER.info("Jianghu overworld terrain initialized for spawn area (radius: {} blocks)", JianghuOverworldTerrain.RADIUS);
                 }
             }
         });
 
         PayloadTypeRegistry.clientboundPlay().register(WuxiaAttributesS2CPayload.TYPE, WuxiaAttributesS2CPayload.CODEC);
-        ClientPlayNetworking.registerGlobalReceiver(WuxiaAttributesS2CPayload.TYPE, (payload, context) -> {
-            LocalPlayer player = context.player();
-            PlayerMixinExtension playerMixinExtension = (PlayerMixinExtension) player;
-            playerMixinExtension.wuxia$setAllAttributes(payload.wuxiaAttributes());
-            playerMixinExtension.wuxia$setHealth(payload.health());
-            playerMixinExtension.wuxia$setMaxHealth(payload.maxHealth());
-            playerMixinExtension.wuxia$setAction(Action.safeValueOf(payload.action()));
-            playerMixinExtension.wuxia$setAllSkills(payload.skills());
-            Screen screen = context.client().screen;
-            if (screen instanceof AttributesScreen oldAttributesScreen) {
-                context.client().setScreen(new AttributesScreen(oldAttributesScreen.parent));
-            }
-            if (screen instanceof SkillsScreen oldSkillsScreen) {
-                context.client().setScreen(new SkillsScreen(oldSkillsScreen.parent));
-            }
-        });
+
         PayloadTypeRegistry.serverboundPlay().register(WuxiaAttributesC2SPayload.TYPE, WuxiaAttributesC2SPayload.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(WuxiaAttributesC2SPayload.TYPE, (_, context) -> {
             PlayerMixinExtension playerMixinExtension = (PlayerMixinExtension) context.player();
             ServerPlayNetworking.send(context.player(), new WuxiaAttributesS2CPayload(
                     playerMixinExtension.wuxia$getAllAttributes(), playerMixinExtension.wuxia$getHealth(),
                     playerMixinExtension.wuxia$getMaxHealth(), playerMixinExtension.wuxia$getAction().name(),
-                    playerMixinExtension.wuxia$getAllSkills()
+                    playerMixinExtension.wuxia$getAllSkills(),
+                    playerMixinExtension.wuxia$getEquippedSkills()
             ));
         });
         PayloadTypeRegistry.serverboundPlay().register(SetActionC2SPayload.TYPE, SetActionC2SPayload.CODEC);
         ServerPlayNetworking.registerGlobalReceiver(SetActionC2SPayload.TYPE, (payload, context) -> {
             PlayerMixinExtension playerMixinExtension = (PlayerMixinExtension) context.player();
             playerMixinExtension.wuxia$setAction(Action.safeValueOf(payload.action()));
+        });
+
+        PayloadTypeRegistry.serverboundPlay().register(EquipSkillC2SPayload.TYPE,  EquipSkillC2SPayload.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(EquipSkillC2SPayload.TYPE, (payload, context) -> {
+            Player player = context.player();
+            PlayerMixinExtension playerMixinExtension = (PlayerMixinExtension) player;
+            Skill skill = Skill.safeValueOf(payload.skill());
+            Skill.Type type = Skill.Type.valueOf(payload.skillType());
+            if (skill == null) return;
+            playerMixinExtension.wuxia$equipSkill(type, skill);
         });
     }
 }

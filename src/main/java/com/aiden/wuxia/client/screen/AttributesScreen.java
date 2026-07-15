@@ -6,7 +6,9 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
 import org.jspecify.annotations.NonNull;
 
@@ -17,6 +19,7 @@ public class AttributesScreen extends Screen {
     private String mana, maxMana, innateStrength, acquiredStrength, innateConstitution, acquiredConstitution, innateAgility, acquiredAgility, innateWisdom, acquiredWisdom;
     private String attack, defense, accuracy, dodge, parry;
     private String basicAttributes, combatAttributes;
+    private int bgColor = 0xDD000099;
 
     public AttributesScreen(Screen parent) {
         super(Component.translatable("wuxiaScreen.attributes"));
@@ -25,12 +28,21 @@ public class AttributesScreen extends Screen {
 
     @Override
     protected void init() {
-        if (this.minecraft.player == null) minecraft.setScreen(null);
-        PlayerMixinExtension playerExt = (PlayerMixinExtension) this.minecraft.player;
-
         // send packet
         WuxiaAttributesC2SPayload payload = new WuxiaAttributesC2SPayload();
         ClientPlayNetworking.send(payload);
+        this.addRenderableWidget(Button.builder(CommonComponents.GUI_DONE,
+                _ -> this.minecraft.setScreen(this.parent)
+        ).pos(this.width / 2 - 100, this.height - 35).width(200).build());
+        this.refreshAttributes();
+    }
+
+    public void refreshAttributes() {
+        if (this.minecraft.player == null) {
+            minecraft.setScreen(null);
+            return;
+        }
+        PlayerMixinExtension playerExt = (PlayerMixinExtension) this.minecraft.player;
 
         this.combatAttributes = Component.translatable("attributesScreen.combat_attributes").getString();
         this.basicAttributes = Component.translatable("attributesScreen.basic_attributes").getString();
@@ -63,7 +75,7 @@ public class AttributesScreen extends Screen {
     @Override
     public void extractRenderState(@NonNull GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractRenderState(graphics, mouseX, mouseY, a);
-        graphics.fill(30, 35, 450, 215, 0xDD000099);
+        graphics.fill(30, 35, 450, 215, this.bgColor);
         graphics.text(this.font, this.title, 40, 40 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
         graphics.text(this.font, this.basicAttributes, 40, 60 - this.font.lineHeight - 10, 0xFFFFFF55, true);
         graphics.text(this.font, this.health, 40, 80 - this.font.lineHeight - 10, 0xFFFFFFFF, true);
@@ -89,5 +101,10 @@ public class AttributesScreen extends Screen {
     @Override
     public void onClose() {
         this.minecraft.setScreen(parent);
+    }
+
+    @Override
+    public boolean isPauseScreen() {
+        return false;
     }
 }

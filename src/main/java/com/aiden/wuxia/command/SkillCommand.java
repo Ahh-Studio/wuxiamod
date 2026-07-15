@@ -1,6 +1,6 @@
 package com.aiden.wuxia.command;
 
-import com.aiden.wuxia.enums.Skill;
+import com.aiden.wuxia.skill.Skill;
 import com.aiden.wuxia.mixin_extension.PlayerMixinExtension;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -38,10 +38,9 @@ public class SkillCommand {
                                         type.equals("QINGGONG") ||
                                         type.equals("JIANFA")
                                 )) {
-                                    Skill.Type skillType = Skill.Type.valueOf(type);
                                     Player player = context.getSource().getPlayer();
                                     PlayerMixinExtension playerMixinExtension = (PlayerMixinExtension) player;
-                                    playerMixinExtension.wuxia$equipSkill(skillType, skill);
+                                    playerMixinExtension.wuxia$equipSkill(Skill.Type.valueOf(type), skill);
                                     return 1;
                                 }
                                 return 0;

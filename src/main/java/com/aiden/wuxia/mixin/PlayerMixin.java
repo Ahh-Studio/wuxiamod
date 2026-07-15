@@ -1,15 +1,15 @@
 package com.aiden.wuxia.mixin;
 
 import com.aiden.wuxia.enums.Action;
-import com.aiden.wuxia.enums.Skill;
+import com.aiden.wuxia.skill.Skill;
 import com.aiden.wuxia.mixin.accessor.LivingEntityAccessor;
 import com.aiden.wuxia.mixin.invoker.PlayerEntityInvoker;
 import com.aiden.wuxia.mixin_extension.PlayerMixinExtension;
 import com.aiden.wuxia.payloads.WuxiaAttributesS2CPayload;
+import com.aiden.wuxia.skill.Skills;
 import com.aiden.wuxia.util.PlayerUtil;
 import com.mojang.authlib.GameProfile;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
@@ -26,7 +26,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -50,7 +49,7 @@ public class PlayerMixin implements PlayerMixinExtension {
             0, 0, 0, 0, 0 // 攻击%、防御%、命中%、躲闪%、招架% [20~24]
     };
     @Unique public Skill[] equippedSkills = {
-            Skill.JIBENQUANJIAO, Skill.JIBENNEIGONG, Skill.JIBENZHAOJIA, Skill.JIBENQINGGONG, Skill.JIBENJIANFA
+            Skills.JIBENQUANJIAO, Skills.JIBENNEIGONG, Skills.JIBENZHAOJIA, Skills.JIBENQINGGONG, Skills.JIBENJIANFA
     };
     @Unique public boolean awakened = false;
     @Unique public int wuxiaHealth = 1;
@@ -99,13 +98,13 @@ public class PlayerMixin implements PlayerMixinExtension {
     public void tick(CallbackInfo ci) {
         Player instance = (Player) (Object) this;
         if (this.awakened) {
-            // 定时发包，把数据同步到客户端
+            // 发包，由外部改变`wuxiaAttributesPacketSendCounter`触发，把数据同步到客户端
             if (this.wuxiaAttributesPacketSendCounter > 0) {
                 this.wuxiaAttributesPacketSendCounter--;
             } else {
-                this.wuxiaAttributesPacketSendCounter = 19;
                 WuxiaAttributesS2CPayload wuxiaAttributesS2CPayload = new WuxiaAttributesS2CPayload(
-                        this.wuxiaAttributes, this.wuxiaHealth, this.wuxiaMaxHealth, this.wuxiaAction.name(), this.skills
+                        this.wuxiaAttributes, this.wuxiaHealth, this.wuxiaMaxHealth,
+                        this.wuxiaAction.name(), this.skills, this.equippedSkills
                 );
                 ServerPlayer serverPlayer = (ServerPlayer) instance;
                 ServerPlayNetworking.send(serverPlayer, wuxiaAttributesS2CPayload);
@@ -127,6 +126,7 @@ public class PlayerMixin implements PlayerMixinExtension {
         }
     }
 
+    @SuppressWarnings("deprecation")
     @Redirect(method = "attack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;hurtOrSimulate(Lnet/minecraft/world/damagesource/DamageSource;F)Z"))
     public boolean hurtOrSimulate(Entity instance, DamageSource source, float damage) {
         return instance.hurtOrSimulate(source, this.awakened ? this.wuxia$getAttack() : damage);
@@ -174,16 +174,11 @@ public class PlayerMixin implements PlayerMixinExtension {
         wuxia$setDodgePercent(PlayerUtil.getDodgePercentFromSkill(this.skills, this.equippedSkills));
         wuxia$setParryPercent(PlayerUtil.getParryPercentFromSkill(this.skills, this.equippedSkills));
 
-        // 后天臂力、根骨、身法
-        wuxia$setAcquiredStrength(
-                (int) Math.floor(this.skills.get(Skill.JIBENQUANJIAO) * 0.1)
-        );
-        wuxia$setAcquiredConstitution(
-                (int) Math.floor(this.skills.get(Skill.JIBENNEIGONG) * 0.1)
-        );
-        wuxia$setAcquiredAgility(
-                (int) Math.floor(this.skills.get(Skill.JIBENQINGGONG) * 0.1)
-        );
+        // 后天臂力、根骨、身法、悟性（来自技能加成）
+        wuxia$setAcquiredStrength(PlayerUtil.getStrengthBonusFromSkill(this.skills, this.equippedSkills));
+        wuxia$setAcquiredConstitution(PlayerUtil.getConstitutionBonusFromSkill(this.skills, this.equippedSkills));
+        wuxia$setAcquiredAgility(PlayerUtil.getAgilityBonusFromSkill(this.skills, this.equippedSkills));
+        wuxia$setAcquiredWisdom(PlayerUtil.getWisdomBonusFromSkill(this.skills, this.equippedSkills));
 
         // 更新攻击、防御、命中、躲闪、招架的值
         this.wuxia$setAttack((int) Math.floor((wuxia$getInnateStrength() +
@@ -583,7 +578,13 @@ public class PlayerMixin implements PlayerMixinExtension {
 
     @Override
     public void wuxia$setAllSkills(Map<Skill, Integer> skills) {
-        this.skills = skills;
+        if (skills == null) return;
+        for (Skill skill : Skill.values()) {
+            Integer value = skills.get(skill);
+            if (value != null) {
+                this.skills.put(skill, value);
+            }
+        }
     }
 
     @Unique
@@ -604,12 +605,18 @@ public class PlayerMixin implements PlayerMixinExtension {
 
     @Override
     public void wuxia$equipSkill(Skill.Type type, Skill skill) {
-        switch (type) {
-            case QUANJIAO: this.equippedSkills[0] = skill; break;
-            case NEIGONG: this.equippedSkills[1] = skill; break;
-            case ZHAOJIA: this.equippedSkills[2] = skill; break;
-            case QINGGONG: this.equippedSkills[3] = skill; break;
-            case JIANFA: this.equippedSkills[4] = skill; break;
+        this.equippedSkills[type.ordinal()] = skill;
+    }
+
+    @Override
+    public Skill[] wuxia$getEquippedSkills() {
+        return this.equippedSkills;
+    }
+
+    @Override
+    public void wuxia$setEquippedSkills(Skill[] equippedSkills) {
+        if (equippedSkills != null) {
+            System.arraycopy(equippedSkills, 0, this.equippedSkills, 0, Math.min(equippedSkills.length, this.equippedSkills.length));
         }
     }
 }

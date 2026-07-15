@@ -4,20 +4,27 @@ import com.aiden.wuxia.WuxiaMod;
 import com.aiden.wuxia.block.ModBlocks;
 import com.aiden.wuxia.client.keybinding.ModKeyBindings;
 import com.aiden.wuxia.client.renderer.block_entity.JianghuPortalRenderer;
+import com.aiden.wuxia.client.screen.AttributesScreen;
 import com.aiden.wuxia.client.screen.EndReactorScreen;
 import com.aiden.wuxia.client.screen.MenuScreen;
+import com.aiden.wuxia.client.screen.SkillsScreen;
+import com.aiden.wuxia.enums.Action;
 import com.aiden.wuxia.mixin_extension.PlayerMixinExtension;
+import com.aiden.wuxia.payloads.WuxiaAttributesC2SPayload;
+import com.aiden.wuxia.payloads.WuxiaAttributesS2CPayload;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.resources.Identifier;
@@ -58,6 +65,25 @@ public class WuxiaClient implements ClientModInitializer {
         MenuScreens.register(ModBlocks.END_REACTOR_MENU_TYPE, EndReactorScreen::new);
 
         BlockEntityRenderers.register(ModBlocks.JIANGHU_PORTAL_BLOCK_ENTITY_TYPE, JianghuPortalRenderer::new);
+
+        ClientPlayNetworking.registerGlobalReceiver(WuxiaAttributesS2CPayload.TYPE, (payload, context) -> {
+            LocalPlayer player = context.player();
+            PlayerMixinExtension playerMixinExtension = (PlayerMixinExtension) player;
+            playerMixinExtension.wuxia$setAllAttributes(payload.wuxiaAttributes());
+            playerMixinExtension.wuxia$setHealth(payload.health());
+            playerMixinExtension.wuxia$setMaxHealth(payload.maxHealth());
+            playerMixinExtension.wuxia$setAction(Action.safeValueOf(payload.action()));
+            playerMixinExtension.wuxia$setAllSkills(payload.skills());
+            playerMixinExtension.wuxia$setEquippedSkills(payload.equippedSkills());
+
+            Screen screen = context.client().screen;
+            if (screen instanceof AttributesScreen attributesScreen) {
+                attributesScreen.refreshAttributes();
+            }
+            if (screen instanceof SkillsScreen skillsScreen) {
+                skillsScreen.refreshSkillsList();
+            }
+        });
     }
 
     private int getHealthColor(int health, int maxHealth) {

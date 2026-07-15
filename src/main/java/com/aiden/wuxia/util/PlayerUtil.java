@@ -1,10 +1,11 @@
 package com.aiden.wuxia.util;
 
 import com.aiden.wuxia.enums.Rarity;
-import com.aiden.wuxia.enums.Skill;
+import com.aiden.wuxia.skill.Skill;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
+import java.util.List;
 import java.util.Map;
 
 public class PlayerUtil {
@@ -101,273 +102,214 @@ public class PlayerUtil {
         return wuxiaAttributes;
     }
 
-    public static int getDamageBonusFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
-        int damageBonus = 0;
-        Skill[] allSkills = Skill.values();
-        for (Skill skill : allSkills) {
-            int lv = skills.get(skill);
-            if (skills.get(skill) <= 0) {
-                continue;
+    private static SkillProperty getPropertyForSlot(Skill skill, int slotIndex) {
+        Skill.Type slotType = switch (slotIndex) {
+            case 0 -> Skill.Type.QUANJIAO;
+            case 1 -> Skill.Type.NEIGONG;
+            case 2 -> Skill.Type.ZHAOJIA;
+            case 3 -> Skill.Type.QINGGONG;
+            case 4 -> Skill.Type.JIANFA;
+            default -> skill.types[0];
+        };
+        for (int i = 0; i < skill.types.length; i++) {
+            if (skill.types[i] == slotType) {
+                return skill.properties[i];
             }
-            if (skill.rarity == Rarity.COMMON) {
-                damageBonus += skill.property.attackBonus.apply(lv);
-                continue;
-            }
+        }
+        return null;
+    }
 
-            boolean equipped = false;
-            for (Skill skill1 : equippedSkills) {
-                if (skill == skill1) {
-                    equipped = true;
-                    break;
-                }
-            }
+    /**
+     * 获取技能的有效属性列表<br>
+     * COMMON（白色）技能直接生效，无需装备<br>
+     * 其他稀有度技能需要装备后才生效
+     */
+    private static List<SkillProperty> getEffectiveProperties(Skill skill, Skill[] equippedSkills) {
+        List<SkillProperty> props = new java.util.ArrayList<>();
 
-            if (equipped) damageBonus += skill.property.attackBonus.apply(lv);
+        // COMMON 技能直接生效
+        if (skill.rarity == Rarity.COMMON) {
+            props.add(skill.properties[0]);
+            return props;
         }
 
+        // 其他稀有度技能需要装备后才生效
+        for (int i = 0; i < equippedSkills.length; i++) {
+            if (skill == equippedSkills[i]) {
+                SkillProperty prop = getPropertyForSlot(skill, i);
+                if (prop != null) {
+                    props.add(prop);
+                }
+            }
+        }
+        return props;
+    }
+
+    public static int getDamageBonusFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
+        int damageBonus = 0;
+        for (Skill skill : Skill.values()) {
+            int lv = skills.get(skill);
+            if (lv <= 0) continue;
+            for (SkillProperty prop : getEffectiveProperties(skill, equippedSkills)) {
+                damageBonus += prop.attackBonus.apply(lv);
+            }
+        }
         return damageBonus;
     }
 
     public static int getDefenseBonusFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
         int defenseBonus = 0;
-        Skill[] allSkills = Skill.values();
-        for (Skill skill : allSkills) {
+        for (Skill skill : Skill.values()) {
             int lv = skills.get(skill);
-            if (skills.get(skill) <= 0) {
-                continue;
+            if (lv <= 0) continue;
+            for (SkillProperty prop : getEffectiveProperties(skill, equippedSkills)) {
+                defenseBonus += prop.defenseBonus.apply(lv);
             }
-            if (skill.rarity == Rarity.COMMON) {
-                defenseBonus += skill.property.defenseBonus.apply(lv);
-                continue;
-            }
-
-            boolean equipped = false;
-            for (Skill skill1 : equippedSkills) {
-                if (skill == skill1) {
-                    equipped = true;
-                    break;
-                }
-            }
-
-            if (equipped) defenseBonus += skill.property.defenseBonus.apply(lv);
         }
-
         return defenseBonus;
     }
 
     public static int getAccuracyBonusFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
         int accuracyBonus = 0;
-        Skill[] allSkills = Skill.values();
-        for (Skill skill : allSkills) {
+        for (Skill skill : Skill.values()) {
             int lv = skills.get(skill);
-            if (skills.get(skill) <= 0) {
-                continue;
+            if (lv <= 0) continue;
+            for (SkillProperty prop : getEffectiveProperties(skill, equippedSkills)) {
+                accuracyBonus += prop.accuracyBonus.apply(lv);
             }
-            if (skill.rarity == Rarity.COMMON) {
-                accuracyBonus += skill.property.accuracyBonus.apply(lv);
-                continue;
-            }
-
-            boolean equipped = false;
-            for (Skill skill1 : equippedSkills) {
-                if (skill == skill1) {
-                    equipped = true;
-                    break;
-                }
-            }
-
-            if (equipped) accuracyBonus += skill.property.accuracyBonus.apply(lv);
         }
-
         return accuracyBonus;
     }
 
     public static int getDodgeBonusFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
         int dodgeBonus = 0;
-        Skill[] allSkills = Skill.values();
-        for (Skill skill : allSkills) {
+        for (Skill skill : Skill.values()) {
             int lv = skills.get(skill);
-            if (skills.get(skill) <= 0) {
-                continue;
+            if (lv <= 0) continue;
+            for (SkillProperty prop : getEffectiveProperties(skill, equippedSkills)) {
+                dodgeBonus += prop.dodgeBonus.apply(lv);
             }
-            if (skill.rarity == Rarity.COMMON) {
-                dodgeBonus += skill.property.dodgeBonus.apply(lv);
-                continue;
-            }
-
-            boolean equipped = false;
-            for (Skill skill1 : equippedSkills) {
-                if (skill == skill1) {
-                    equipped = true;
-                    break;
-                }
-            }
-
-            if (equipped) dodgeBonus += skill.property.dodgeBonus.apply(lv);
         }
-
         return dodgeBonus;
     }
 
     public static int getParryBonusFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
         int parryBonus = 0;
-        Skill[] allSkills = Skill.values();
-        for (Skill skill : allSkills) {
+        for (Skill skill : Skill.values()) {
             int lv = skills.get(skill);
-            if (skills.get(skill) <= 0) {
-                continue;
+            if (lv <= 0) continue;
+            for (SkillProperty prop : getEffectiveProperties(skill, equippedSkills)) {
+                parryBonus += prop.parryBonus.apply(lv);
             }
-            if (skill.rarity == Rarity.COMMON) {
-                parryBonus += skill.property.parryBonus.apply(lv);
-                continue;
-            }
-
-            boolean equipped = false;
-            for (Skill skill1 : equippedSkills) {
-                if (skill == skill1) {
-                    equipped = true;
-                    break;
-                }
-            }
-
-            if (equipped) parryBonus += skill.property.parryBonus.apply(lv);
         }
-
         return parryBonus;
     }
 
     public static int getDamagePercentFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
         int damagePercent = 0;
-        Skill[] allSkills = Skill.values();
-        for (Skill skill : allSkills) {
+        for (Skill skill : Skill.values()) {
             int lv = skills.get(skill);
-            if (skills.get(skill) <= 0) {
-                continue;
+            if (lv <= 0) continue;
+            for (SkillProperty prop : getEffectiveProperties(skill, equippedSkills)) {
+                damagePercent += prop.attackPercent.apply(lv);
             }
-            if (skill.rarity == Rarity.COMMON) {
-                damagePercent += skill.property.attackPercent.apply(lv);
-                continue;
-            }
-
-            boolean equipped = false;
-            for (Skill skill1 : equippedSkills) {
-                if (skill == skill1) {
-                    equipped = true;
-                    break;
-                }
-            }
-
-            if (equipped) damagePercent += skill.property.attackPercent.apply(lv);
         }
-
         return damagePercent;
     }
 
     public static int getDefensePercentFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
         int defensePercent = 0;
-        Skill[] allSkills = Skill.values();
-        for (Skill skill : allSkills) {
+        for (Skill skill : Skill.values()) {
             int lv = skills.get(skill);
-            if (skills.get(skill) <= 0) {
-                continue;
+            if (lv <= 0) continue;
+            for (SkillProperty prop : getEffectiveProperties(skill, equippedSkills)) {
+                defensePercent += prop.defensePercent.apply(lv);
             }
-            if (skill.rarity == Rarity.COMMON) {
-                defensePercent += skill.property.defensePercent.apply(lv);
-                continue;
-            }
-
-            boolean equipped = false;
-            for (Skill skill1 : equippedSkills) {
-                if (skill == skill1) {
-                    equipped = true;
-                    break;
-                }
-            }
-
-            if (equipped) defensePercent += skill.property.defensePercent.apply(lv);
         }
-
         return defensePercent;
     }
 
     public static int getAccuracyPercentFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
         int accuracyPercent = 0;
-        Skill[] allSkills = Skill.values();
-        for (Skill skill : allSkills) {
+        for (Skill skill : Skill.values()) {
             int lv = skills.get(skill);
-            if (skills.get(skill) <= 0) {
-                continue;
+            if (lv <= 0) continue;
+            for (SkillProperty prop : getEffectiveProperties(skill, equippedSkills)) {
+                accuracyPercent += prop.accuracyPercent.apply(lv);
             }
-            if (skill.rarity == Rarity.COMMON) {
-                accuracyPercent += skill.property.accuracyPercent.apply(lv);
-                continue;
-            }
-
-            boolean equipped = false;
-            for (Skill skill1 : equippedSkills) {
-                if (skill == skill1) {
-                    equipped = true;
-                    break;
-                }
-            }
-
-            if (equipped) accuracyPercent += skill.property.accuracyPercent.apply(lv);
         }
-
         return accuracyPercent;
     }
 
     public static int getDodgePercentFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
         int dodgePercent = 0;
-        Skill[] allSkills = Skill.values();
-        for (Skill skill : allSkills) {
+        for (Skill skill : Skill.values()) {
             int lv = skills.get(skill);
-            if (skills.get(skill) <= 0) {
-                continue;
+            if (lv <= 0) continue;
+            for (SkillProperty prop : getEffectiveProperties(skill, equippedSkills)) {
+                dodgePercent += prop.dodgePercent.apply(lv);
             }
-            if (skill.rarity == Rarity.COMMON) {
-                dodgePercent += skill.property.dodgePercent.apply(lv);
-                continue;
-            }
-
-            boolean equipped = false;
-            for (Skill skill1 : equippedSkills) {
-                if (skill == skill1) {
-                    equipped = true;
-                    break;
-                }
-            }
-
-            if (equipped) dodgePercent += skill.property.dodgePercent.apply(lv);
         }
-
         return dodgePercent;
     }
 
     public static int getParryPercentFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
         int parryPercent = 0;
-        Skill[] allSkills = Skill.values();
-        for (Skill skill : allSkills) {
+        for (Skill skill : Skill.values()) {
             int lv = skills.get(skill);
-            if (skills.get(skill) <= 0) {
-                continue;
+            if (lv <= 0) continue;
+            for (SkillProperty prop : getEffectiveProperties(skill, equippedSkills)) {
+                parryPercent += prop.parryPercent.apply(lv);
             }
-            if (skill.rarity == Rarity.COMMON) {
-                parryPercent += skill.property.parryPercent.apply(lv);
-                continue;
-            }
-
-            boolean equipped = false;
-            for (Skill skill1 : equippedSkills) {
-                if (skill == skill1) {
-                    equipped = true;
-                    break;
-                }
-            }
-
-            if (equipped) parryPercent += skill.property.parryPercent.apply(lv);
         }
-
         return parryPercent;
+    }
+
+    public static int getStrengthBonusFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
+        int strengthBonus = 0;
+        for (Skill skill : Skill.values()) {
+            int lv = skills.get(skill);
+            if (lv <= 0) continue;
+            for (SkillProperty prop : getEffectiveProperties(skill, equippedSkills)) {
+                strengthBonus += prop.strengthBonus.apply(lv);
+            }
+        }
+        return strengthBonus;
+    }
+
+    public static int getConstitutionBonusFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
+        int constitutionBonus = 0;
+        for (Skill skill : Skill.values()) {
+            int lv = skills.get(skill);
+            if (lv <= 0) continue;
+            for (SkillProperty prop : getEffectiveProperties(skill, equippedSkills)) {
+                constitutionBonus += prop.constitutionBonus.apply(lv);
+            }
+        }
+        return constitutionBonus;
+    }
+
+    public static int getAgilityBonusFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
+        int agilityBonus = 0;
+        for (Skill skill : Skill.values()) {
+            int lv = skills.get(skill);
+            if (lv <= 0) continue;
+            for (SkillProperty prop : getEffectiveProperties(skill, equippedSkills)) {
+                agilityBonus += prop.agilityBonus.apply(lv);
+            }
+        }
+        return agilityBonus;
+    }
+
+    public static int getWisdomBonusFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
+        int wisdomBonus = 0;
+        for (Skill skill : Skill.values()) {
+            int lv = skills.get(skill);
+            if (lv <= 0) continue;
+            for (SkillProperty prop : getEffectiveProperties(skill, equippedSkills)) {
+                wisdomBonus += prop.wisdomBonus.apply(lv);
+            }
+        }
+        return wisdomBonus;
     }
 }

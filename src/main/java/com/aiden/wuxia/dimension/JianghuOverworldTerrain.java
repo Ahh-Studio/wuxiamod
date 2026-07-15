@@ -20,11 +20,12 @@ public final class JianghuOverworldTerrain {
 
     private static volatile NoiseBasedChunkGenerator overworldGenerator;
     private static volatile RandomState overworldRandomState;
+    private static volatile NoiseBasedChunkGenerator jianghuGenerator;
 
     private JianghuOverworldTerrain() {
     }
 
-    public static void initialize(BiomeSource biomeSource, long seed, HolderGetter.Provider registryAccess) {
+    public static void initialize(BiomeSource biomeSource, long seed, HolderGetter.Provider registryAccess, NoiseBasedChunkGenerator jianghuGen) {
         Holder<NoiseGeneratorSettings> overworldSettings = registryAccess
                 .lookupOrThrow(Registries.NOISE_SETTINGS)
                 .getOrThrow(NoiseGeneratorSettings.OVERWORLD);
@@ -32,6 +33,7 @@ public final class JianghuOverworldTerrain {
         NoiseBasedChunkGenerator generator = new NoiseBasedChunkGenerator(biomeSource, overworldSettings);
         overworldRandomState = randomState;
         overworldGenerator = generator;
+        jianghuGenerator = jianghuGen;
     }
 
     public static NoiseBasedChunkGenerator getOverworldGenerator() {
@@ -42,8 +44,12 @@ public final class JianghuOverworldTerrain {
         return overworldRandomState;
     }
 
+    public static NoiseBasedChunkGenerator getJianghuGenerator() {
+        return jianghuGenerator;
+    }
+
     public static boolean isInitialized() {
-        return overworldGenerator != null;
+        return overworldGenerator != null && jianghuGenerator != null;
     }
 
     public static boolean shouldUseOverworld(ChunkPos pos) {

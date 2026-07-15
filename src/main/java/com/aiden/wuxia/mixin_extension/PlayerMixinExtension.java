@@ -1,7 +1,7 @@
 package com.aiden.wuxia.mixin_extension;
 
 import com.aiden.wuxia.enums.Action;
-import com.aiden.wuxia.enums.Skill;
+import com.aiden.wuxia.skill.Skill;
 
 import java.util.Map;
 
@@ -141,4 +141,8 @@ public interface PlayerMixinExtension {
     Action wuxia$getAction();
 
     void wuxia$equipSkill(Skill.Type type, Skill skill);
+
+    Skill[] wuxia$getEquippedSkills();
+
+    void wuxia$setEquippedSkills(Skill[] equippedSkills);
 }
