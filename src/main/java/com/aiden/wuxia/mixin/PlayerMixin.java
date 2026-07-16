@@ -180,6 +180,12 @@ public class PlayerMixin implements PlayerMixinExtension {
         wuxia$setAcquiredAgility(PlayerUtil.getAgilityBonusFromSkill(this.skills, this.equippedSkills));
         wuxia$setAcquiredWisdom(PlayerUtil.getWisdomBonusFromSkill(this.skills, this.equippedSkills));
 
+        // 血量、血量%、最大内力
+        wuxia$setDeltaHealth(PlayerUtil.getHealthBonusFromSkill(this.skills, this.equippedSkills)
+                + PlayerUtil.transferMana2Health(wuxia$getMaxMana(), this.equippedSkills));
+        wuxia$setHealthPercent(PlayerUtil.getHealthPercentFromSkill(this.skills, this.equippedSkills));
+        wuxia$setMaxMana(PlayerUtil.getMaxManaBonusFromSkill(this.skills, this.equippedSkills) * (1 + PlayerUtil.getMaxManaPercentFromSkill(this.skills, this.equippedSkills) / 100));
+
         // 更新攻击、防御、命中、躲闪、招架的值
         this.wuxia$setAttack((int) Math.floor((wuxia$getInnateStrength() +
                 wuxia$getInnateStrength() * wuxia$getAcquiredStrength() * 0.1 +

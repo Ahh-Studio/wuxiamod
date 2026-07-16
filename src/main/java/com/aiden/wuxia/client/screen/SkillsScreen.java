@@ -181,17 +181,15 @@ public class SkillsScreen extends Screen {
             public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
                 double mouseX = event.x();
                 double mouseY = event.y();
-                if (this.isEquipButtonHovered((int) mouseX, (int) mouseY) && this.skill.rarity != Rarity.COMMON) {
-                    if (event.button() == 0) {
-                        Player player = SkillsScreen.this.minecraft.player;
-                        if (player != null) {
-                            for (Skill.Type type : this.skill.types) {
-                                EquipSkillC2SPayload payload = new EquipSkillC2SPayload(type.name(), this.skill.name());
-                                ClientPlayNetworking.send(payload);
-                            }
+                if (this.isEquipButtonHovered((int) mouseX, (int) mouseY) && event.button() == 0) {
+                    Player player = SkillsScreen.this.minecraft.player;
+                    if (player != null) {
+                        for (Skill.Type type : this.skill.types) {
+                            EquipSkillC2SPayload payload = new EquipSkillC2SPayload(type.name(), this.skill.name());
+                            ClientPlayNetworking.send(payload);
                         }
-                        SkillsList.this.refreshEntries();
                     }
+                    SkillsList.this.refreshEntries();
                 } else {
                     SkillsScreen.this.minecraft.setScreenAndShow(new SkillScreen(SkillsScreen.this, this.skill));
                 }
@@ -227,9 +225,25 @@ public class SkillsScreen extends Screen {
                     int textY = buttonY + (BUTTON_HEIGHT - 9) / 2;
                     graphics.text(SkillsScreen.this.font, text, textX, textY, 0xFFFFFFFF);
                 } else {
+                    int buttonX = this.getButtonX();
+                    int buttonY = this.getButtonY();
+                    boolean buttonHovered = this.isEquipButtonHovered(mouseX, mouseY);
+                    int buttonColor = buttonHovered ? 0xFFAAAAAA : 0xFF555555;
+                    graphics.fill(buttonX, buttonY, buttonX + BUTTON_WIDTH, buttonY + BUTTON_HEIGHT, buttonColor);
+                    graphics.fill(buttonX, buttonY, buttonX + BUTTON_WIDTH, buttonY + 1, 0xFFFFFFFF);
+                    graphics.fill(buttonX, buttonY + BUTTON_HEIGHT - 1, buttonX + BUTTON_WIDTH, buttonY + BUTTON_HEIGHT, 0xFFFFFFFF);
+                    graphics.fill(buttonX, buttonY, buttonX + 1, buttonY + BUTTON_HEIGHT, 0xFFFFFFFF);
+                    graphics.fill(buttonX + BUTTON_WIDTH - 1, buttonY, buttonX + BUTTON_WIDTH, buttonY + BUTTON_HEIGHT, 0xFFFFFFFF);
+
+                    Component text = Component.translatable("skills_screen.unequip");
+
+                    int textX = buttonX + (BUTTON_WIDTH - SkillsScreen.this.font.width(text)) / 2;
+                    int textY = buttonY + (BUTTON_HEIGHT - 9) / 2;
+                    graphics.text(SkillsScreen.this.font, text, textX, textY, 0xFFFFFFFF);
+
                     if (equippedSkills[this.skill.types[0].ordinal()] != this.skill) {
                         Component component = Component.translatable("skills_screen.equipped")
-                                .append(Component.translatable(equippedSkills[this.skill.types[0].ordinal()].translationKey));
+                                .append(formatSkillName(Component.translatable(equippedSkills[this.skill.types[0].ordinal()].translationKey)));
                         graphics.text(SkillsScreen.this.font, component, this.getContentX() + 60, y, equippedSkills[this.skill.types[0].ordinal()].rarity.color);
                     }
                 }

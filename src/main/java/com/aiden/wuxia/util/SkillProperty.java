@@ -12,6 +12,7 @@ public final class SkillProperty {
     public Function<Integer, Integer> attackPercent = (_ -> 0), defensePercent = (_ -> 0), accuracyPercent = (_ -> 0), dodgePercent = (_ -> 0), parryPercent = (_ -> 0);
     public Function<Integer, Integer> maxManaBonus = (_ -> 0), healthBonus = (_ -> 0);
     public Function<Integer, Integer> maxManaPercent = (_ -> 0), healthPercent = (_ -> 0);
+    public int mana2HealthRate = 0;
 
     public Map<String, Function<Integer, Integer>> getIntFieldMap() {
         Map<String, Function<Integer, Integer>> map = new HashMap<>();

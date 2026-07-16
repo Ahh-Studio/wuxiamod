@@ -312,4 +312,60 @@ public class PlayerUtil {
         }
         return wisdomBonus;
     }
+
+    public static int getMaxManaBonusFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
+        int maxManaBonus = 0;
+        for (Skill skill : Skill.values()) {
+            int lv = skills.get(skill);
+            if (lv <= 0) continue;
+            for (SkillProperty prop : getEffectiveProperties(skill, equippedSkills)) {
+                maxManaBonus += prop.maxManaBonus.apply(lv);
+            }
+        }
+        return maxManaBonus;
+    }
+
+    public static int getMaxManaPercentFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
+        int maxManaPercent = 0;
+        for (Skill skill : Skill.values()) {
+            int lv = skills.get(skill);
+            if (lv <= 0) continue;
+            for (SkillProperty prop : getEffectiveProperties(skill, equippedSkills)) {
+                maxManaPercent += prop.maxManaPercent.apply(lv);
+            }
+        }
+        return maxManaPercent;
+    }
+
+    public static int getHealthBonusFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
+        int healthBonus = 0;
+        for (Skill skill : Skill.values()) {
+            int lv = skills.get(skill);
+            if (lv <= 0) continue;
+            for (SkillProperty prop : getEffectiveProperties(skill, equippedSkills)) {
+                healthBonus += prop.healthBonus.apply(lv);
+            }
+        }
+        return healthBonus;
+    }
+
+    public static int getHealthPercentFromSkill(Map<Skill, Integer> skills, Skill[] equippedSkills) {
+        int healthPercent = 0;
+        for (Skill skill : Skill.values()) {
+            int lv = skills.get(skill);
+            if (lv <= 0) continue;
+            for (SkillProperty prop : getEffectiveProperties(skill, equippedSkills)) {
+                healthPercent += prop.healthPercent.apply(lv);
+            }
+        }
+        return healthPercent;
+    }
+    public static int transferMana2Health(int maxMana, Skill[] equippedSkills) {
+        int healthBonus = 0;
+        SkillProperty[] skillProperties = equippedSkills[1].properties;
+        for (SkillProperty prop : skillProperties) {
+            healthBonus += maxMana * prop.mana2HealthRate / 100;
+        }
+        return healthBonus;
+    }
 }

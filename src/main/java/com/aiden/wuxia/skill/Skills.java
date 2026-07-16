@@ -19,6 +19,8 @@ public class Skills {
             .desc("武林中通用的内功心法，凡练武之人都或多或少懂得一点。")
             .property(property -> {
                 property.constitutionBonus = lv -> (int) (lv * 0.1);
+                property.maxManaBonus = lv -> lv * 5 + 100;
+                property.mana2HealthRate = 10;
                 return property;
             })
             .build();
@@ -100,6 +102,7 @@ public class Skills {
             .property(property -> {
                 property.healthBonus = lv -> lv;
                 property.maxManaBonus = lv -> lv * 10;
+                property.mana2HealthRate = 50;
                 return property;
             })
             .build();
