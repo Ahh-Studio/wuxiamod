@@ -17,6 +17,7 @@
     "client": [
         "AvatarRendererMixin",
         "AvatarRenderStateMixin",
+        "GuiMixin",
         "PlayerModelMixin"
     ]
 }

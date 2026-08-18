@@ -145,4 +145,25 @@ public interface PlayerMixinExtension {
     Skill[] wuxia$getEquippedSkills();
 
     void wuxia$setEquippedSkills(Skill[] equippedSkills);
+
+    int wuxia$getParticleColor();
+
+    void wuxia$setParticleColor(int color);
+
+    /**
+     * 服务器端处理蓄力释放：攻击当前目标（通过射线检测），
+     * 根据蓄力时长决定是否产生内力化形粒子。
+     * @param chargeDuration 蓄力时长（tick数）
+     */
+    void wuxia$handleChargeRelease(int chargeDuration);
+
+    /**
+     * 设置蓄力期间触距加成（客户端使用）
+     */
+    void wuxia$setChargeReachBonus(double bonus);
+
+    /**
+     * 获取蓄力期间触距加成
+     */
+    double wuxia$getChargeReachBonus();
 }

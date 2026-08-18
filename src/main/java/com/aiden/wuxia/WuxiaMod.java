@@ -8,6 +8,8 @@ import com.aiden.wuxia.enums.Action;
 import com.aiden.wuxia.skill.Skill;
 import com.aiden.wuxia.item.ModItems;
 import com.aiden.wuxia.mixin_extension.PlayerMixinExtension;
+import com.aiden.wuxia.payloads.ChargeBlockBreakC2SPayload;
+import com.aiden.wuxia.payloads.ChargeReleaseC2SPayload;
 import com.aiden.wuxia.payloads.EquipSkillC2SPayload;
 import com.aiden.wuxia.payloads.SetActionC2SPayload;
 import com.aiden.wuxia.payloads.WuxiaAttributesC2SPayload;
@@ -56,7 +58,8 @@ public class WuxiaMod implements ModInitializer {
                     playerMixinExtension.wuxia$getAllAttributes(), playerMixinExtension.wuxia$getHealth(),
                     playerMixinExtension.wuxia$getMaxHealth(), playerMixinExtension.wuxia$getAction().name(),
                     playerMixinExtension.wuxia$getAllSkills(),
-                    playerMixinExtension.wuxia$getEquippedSkills()
+                    playerMixinExtension.wuxia$getEquippedSkills(),
+                    playerMixinExtension.wuxia$isAwakened()
             ));
         });
         PayloadTypeRegistry.serverboundPlay().register(SetActionC2SPayload.TYPE, SetActionC2SPayload.CODEC);
@@ -73,6 +76,20 @@ public class WuxiaMod implements ModInitializer {
             Skill.Type type = Skill.Type.valueOf(payload.skillType());
             if (skill == null) return;
             playerMixinExtension.wuxia$equipSkill(type, skill);
+        });
+
+        PayloadTypeRegistry.serverboundPlay().register(ChargeReleaseC2SPayload.TYPE, ChargeReleaseC2SPayload.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(ChargeReleaseC2SPayload.TYPE, (payload, context) -> {
+            PlayerMixinExtension playerMixinExtension = (PlayerMixinExtension) context.player();
+            playerMixinExtension.wuxia$handleChargeRelease(payload.chargeDuration());
+        });
+
+        PayloadTypeRegistry.serverboundPlay().register(ChargeBlockBreakC2SPayload.TYPE, ChargeBlockBreakC2SPayload.CODEC);
+        ServerPlayNetworking.registerGlobalReceiver(ChargeBlockBreakC2SPayload.TYPE, (payload, context) -> {
+            Player player = context.player();
+            if (player.level() instanceof ServerLevel serverLevel) {
+                serverLevel.destroyBlock(payload.pos(), true, player);
+            }
         });
     }
 }

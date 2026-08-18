@@ -1,0 +1,13 @@
+classTweaker v1 official
+accessible field net/minecraft/world/entity/LivingEntity lastHurt F
+accessible method net/minecraft/world/entity/LivingEntity resolveMobResponsibleForDamage (Lnet/minecraft/world/damagesource/DamageSource;)V
+accessible method net/minecraft/world/entity/LivingEntity resolvePlayerResponsibleForDamage (Lnet/minecraft/world/damagesource/DamageSource;)Lnet/minecraft/world/entity/player/Player;
+accessible method net/minecraft/world/entity/Entity markHurt ()V
+accessible method net/minecraft/world/entity/LivingEntity checkTotemDeathProtection (Lnet/minecraft/world/damagesource/DamageSource;)Z
+accessible method net/minecraft/world/entity/player/Player getDeathSound ()Lnet/minecraft/sounds/SoundEvent;
+accessible method net/minecraft/world/entity/LivingEntity playSecondaryHurtSound (Lnet/minecraft/world/damagesource/DamageSource;)V
+accessible method net/minecraft/world/entity/LivingEntity playHurtSound (Lnet/minecraft/world/damagesource/DamageSource;)V
+accessible field net/minecraft/world/entity/LivingEntity lastDamageSource Lnet/minecraft/world/damagesource/DamageSource;
+accessible field net/minecraft/world/entity/LivingEntity lastDamageStamp J
+accessible method net/minecraft/world/entity/LivingEntity getDamageAfterArmorAbsorb (Lnet/minecraft/world/damagesource/DamageSource;F)F
+accessible method net/minecraft/world/entity/LivingEntity getDamageAfterMagicAbsorb (Lnet/minecraft/world/damagesource/DamageSource;F)F

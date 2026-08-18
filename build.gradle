@@ -31,6 +31,10 @@ dependencies {
 	
 }
 
+loom {
+	accessWidenerPath = file("src/main/resources/wuxia.classtweaker")
+}
+
 processResources {
 	def version = project.version
 	inputs.property "version", version

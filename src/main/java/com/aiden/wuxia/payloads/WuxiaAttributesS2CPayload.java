@@ -10,7 +10,7 @@ import net.minecraft.resources.Identifier;
 
 import java.util.Map;
 
-public record WuxiaAttributesS2CPayload(int[] wuxiaAttributes, int health, int maxHealth, String action, Map<Skill, Integer> skills, Skill[] equippedSkills) implements CustomPacketPayload {
+public record WuxiaAttributesS2CPayload(int[] wuxiaAttributes, int health, int maxHealth, String action, Map<Skill, Integer> skills, Skill[] equippedSkills, boolean awakened) implements CustomPacketPayload {
     public static final Identifier ID = Identifier.fromNamespaceAndPath(WuxiaMod.MOD_ID, "wuxia_attributes_s2c");
     public static final CustomPacketPayload.Type<WuxiaAttributesS2CPayload> TYPE = new Type<>(ID);
     public static final StreamCodec<RegistryFriendlyByteBuf, WuxiaAttributesS2CPayload> CODEC = StreamCodec.composite(
@@ -20,6 +20,7 @@ public record WuxiaAttributesS2CPayload(int[] wuxiaAttributes, int health, int m
             ByteBufCodecs.STRING_UTF8, WuxiaAttributesS2CPayload::action,
             Codecs.SKILL_MAP_STR, WuxiaAttributesS2CPayload::skills,
             Codecs.SKILL_ARRAY, WuxiaAttributesS2CPayload::equippedSkills,
+            ByteBufCodecs.BOOL, WuxiaAttributesS2CPayload::awakened,
             WuxiaAttributesS2CPayload::new
     );
 
