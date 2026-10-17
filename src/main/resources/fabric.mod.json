@@ -3,33 +3,32 @@
 	"id": "wuxia",
 	"version": "${version}",
 	"name": "WuxiaMod",
-	"description": "WuxiaMod",
+	"description": "This is an example description! Tell everyone what your mod is about!",
 	"authors": [
 		"Aiden"
 	],
-	"contact": {},
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
 	"license": "MIT",
 	"icon": "assets/wuxia/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-            "com.aiden.wuxia.WuxiaMod"
-		],
-		"client": [
-			"com.aiden.wuxia.client.WuxiaClient"
+			"cn.aiden8115.wuxia.WuxiaMod"
 		],
 		"fabric-datagen": [
-			"com.aiden.wuxia.WuxiaModDataGenerator"
+			"cn.aiden8115.wuxia.WuxiaModDataGenerator"
 		]
 	},
 	"mixins": [
 		"wuxia.mixins.json"
 	],
 	"depends": {
-		"fabricloader": ">=0.19.2",
-		"minecraft": "~26.1.2",
+		"fabricloader": ">=0.19.5",
+		"minecraft": "~26.3",
 		"java": ">=25",
 		"fabric-api": "*"
-	},
-	"accessWidener": "wuxia.classtweaker"
+	}
 }

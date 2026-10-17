@@ -3,9 +3,6 @@ plugins {
 	id 'maven-publish'
 }
 
-version = project.mod_version
-group = project.maven_group
-
 repositories {
 	// Add repositories to retrieve artifacts from in here.
 	// You should only use this when depending on other mods because
@@ -17,22 +14,17 @@ repositories {
 fabricApi {
 	configureDataGeneration {
 		client = true
+		modId = "wuxia"
 	}
 }
 
 dependencies {
 	// To change the versions see the gradle.properties file
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	
 	implementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-	
-}
-
-loom {
-	accessWidenerPath = file("src/main/resources/wuxia.classtweaker")
 }
 
 processResources {

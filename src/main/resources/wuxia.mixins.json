@@ -1,23 +1,13 @@
 {
-    "required": true,
-    "package": "com.aiden.wuxia.mixin",
-    "compatibilityLevel": "JAVA_25",
-    "mixins": [
-        "NoiseBasedChunkGeneratorMixin",
-        "PlayerMixin",
-        "accessor.LivingEntityAccessor",
-        "invoker.PlayerEntityInvoker"
-    ],
-    "injectors": {
-        "defaultRequire": 1
-    },
-    "overwrites": {
-        "requireAnnotations": true
-    },
-    "client": [
-        "AvatarRendererMixin",
-        "AvatarRenderStateMixin",
-        "GuiMixin",
-        "PlayerModelMixin"
-    ]
+	"required": true,
+	"package": "cn.aiden8115.wuxia.mixin",
+	"compatibilityLevel": "JAVA_25",
+	"mixins": [
+	],
+	"injectors": {
+		"defaultRequire": 1
+	},
+	"overwrites": {
+		"requireAnnotations": true
+	}
 }

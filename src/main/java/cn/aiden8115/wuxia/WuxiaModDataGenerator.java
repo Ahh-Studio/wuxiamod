@@ -1,11 +1,11 @@
-package com.aiden.wuxia;
+package cn.aiden8115.wuxia;
 
 import net.fabricmc.fabric.api.datagen.v1.DataGeneratorEntrypoint;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataGenerator;
 
 public class WuxiaModDataGenerator implements DataGeneratorEntrypoint {
-    @Override
-    public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
-        FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
-    }
+	@Override
+	public void onInitializeDataGenerator(FabricDataGenerator fabricDataGenerator) {
+
+	}
 }
